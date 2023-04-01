@@ -10,6 +10,11 @@
     "start": "next start",
     "prepare": "husky install"
   },
+  "lint-staged": {
+    "*.{js,ts,tsx}": [
+      "eslint --fix"
+    ]
+  },
   "dependencies": {
     "@next-auth/prisma-adapter": "^1.0.5",
     "@prisma/client": "^4.11.0",
