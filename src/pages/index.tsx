@@ -1,12 +1,12 @@
 import Image from "next/image";
+import { useRouter } from "next/router";
 
 import DefaultLayout from "~/components/common/DefaultLayout";
 import champagneWithConfetti from "../../public/images/champagne-confetti.jpg";
+import Button from "~/components/common/base/Button";
+import Header from "~/components/common/base/Header";
 
 import { type NextPageWithLayout } from "~/types";
-import Button from "~/components/common/base/Button";
-import { useRouter } from "next/router";
-import Header from "~/components/common/base/Header";
 
 //if user is not logged in, stay here. login button -> login
 //TODO: if user is already logged in, login button -> jump to user home page.
