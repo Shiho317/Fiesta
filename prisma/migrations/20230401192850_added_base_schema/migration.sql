@@ -37,7 +37,8 @@ CREATE TABLE "VerificationToken" (
 CREATE TABLE "User" (
     "id" TEXT NOT NULL,
     "name" TEXT,
-    "email" TEXT,
+    "email" TEXT NOT NULL,
+    "password" TEXT NOT NULL,
     "emailVerified" TIMESTAMP(3),
     "image" TEXT,
 
@@ -152,6 +153,9 @@ CREATE UNIQUE INDEX "User_id_key" ON "User"("id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_password_key" ON "User"("password");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Event_id_key" ON "Event"("id");

@@ -21,11 +21,9 @@ const server = z.object({
   // Add `.min(1) on ID and SECRET if you want to make sure they're not empty
   DISCORD_CLIENT_ID: z.string(),
   DISCORD_CLIENT_SECRET: z.string(),
-  EMAIL_SERVER_HOST: z.string(),
-  EMAIL_SERVER_PORT: z.string(),
-  EMAIL_SERVER_USER: z.string(),
-  EMAIL_SERVER_PASSWORD: z.string(),
+  EMAIL_SERVER: z.string(),
   EMAIL_FROM: z.string(),
+  JWT_SECRET_KEY: z.string(),
 });
 
 /**
@@ -49,11 +47,9 @@ const processEnv = {
   NEXTAUTH_URL: process.env.NEXTAUTH_URL,
   DISCORD_CLIENT_ID: process.env.DISCORD_CLIENT_ID,
   DISCORD_CLIENT_SECRET: process.env.DISCORD_CLIENT_SECRET,
-  EMAIL_SERVER_HOST: process.env.EMAIL_SERVER_HOST,
-  EMAIL_SERVER_PORT: process.env.EMAIL_SERVER_PORT,
-  EMAIL_SERVER_USER: process.env.EMAIL_SERVER_USER,
-  EMAIL_SERVER_PASSWORD: process.env.EMAIL_SERVER_PASSWORD,
+  EMAIL_SERVER: process.env.EMAIL_SERVER,
   EMAIL_FROM: process.env.EMAIL_FROM,
+  JWT_SECRET_KEY: process.env.JWT_SECRET_KEY,
   // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
 };
 

@@ -1,15 +1,12 @@
-import { type GetServerSidePropsContext } from "next";
-import {
-  getServerSession,
-  type NextAuthOptions,
-  type DefaultSession,
-} from "next-auth";
-import DiscordProvider from "next-auth/providers/discord";
+import { getServerSession } from "next-auth";
 import EmailProvider from "next-auth/providers/email";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 
 import { env } from "~/env.mjs";
 import { prisma } from "~/server/db";
+
+import { type NextAuthOptions, type DefaultSession } from "next-auth";
+import { type GetServerSidePropsContext } from "next";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -38,40 +35,72 @@ declare module "next-auth" {
  * @see https://next-auth.js.org/configuration/options
  */
 export const authOptions: NextAuthOptions = {
+  session: {
+    strategy: "database",
+    maxAge: 30 * 24 * 60 * 60, //1M
+    updateAge: 24 * 60 * 60, //24h
+  },
+  pages: {
+    signIn: "/auth/login",
+  },
   callbacks: {
-    session({ session, user }) {
+    redirect({ url, baseUrl }) {
+      // Allows relative callback URLs
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      // Allows callback URLs on the same origin
+      else if (new URL(url).origin === baseUrl) return url;
+      return baseUrl;
+    },
+    async session({ session, user }) {
       if (session.user) {
+        const fetchUser = await prisma.user.findUnique({
+          where: {
+            id: user.id,
+          },
+        });
         session.user.id = user.id;
-        // session.user.role = user.role; <-- put other properties on the session here
+        session.user.email = user.email;
+        session.user.name = fetchUser?.name;
       }
-
+      // session.user.role = user.role; <-- put other properties on the session here
       return session;
     },
   },
   adapter: PrismaAdapter(prisma),
   providers: [
-    DiscordProvider({
-      clientId: env.DISCORD_CLIENT_ID,
-      clientSecret: env.DISCORD_CLIENT_SECRET,
-    }),
     EmailProvider({
-      server: {
-        host: env.EMAIL_SERVER_HOST,
-        port: env.EMAIL_SERVER_PORT,
-        auth: {
-          user: env.EMAIL_SERVER_USER,
-          pass: env.EMAIL_SERVER_PASSWORD,
-        },
-      },
+      server: env.EMAIL_SERVER,
       from: env.EMAIL_FROM,
     }),
+    // CredentialsProvider({
+    //   type: "credentials",
+    //   credentials: {
+    //     email: {
+    //       label: "Email",
+    //       type: "email",
+    //       placeholder: "fiesta@mail.com",
+    //     },
+    //     password: { label: "Password", type: "password" },
+    //   },
+    //   async authorize(credentials) {
+    //     const user = await prisma.user.findUnique({
+    //       where: {
+    //         email: credentials?.email,
+    //       },
+    //     });
+    //     if (!user) {
+    //       throw new Error("Could not find user");
+    //     }
+    //     const tokenDecoded = verifyAndDecodeJWT(user.password as string);
+    //     const { password } = tokenDecoded as { password: string };
+    //     if (password === credentials?.password) {
+    //       console.log(user);
+    //       return user;
+    //     }
+    //     return null;
+    //   },
+    // }),
     /**
-     * ...add more providers here.
-     *
-     * Most other providers require a bit more work than the Discord provider. For example, the
-     * GitHub provider requires you to add the `refresh_token_expires_in` field to the Account
-     * model. Refer to the NextAuth.js docs for the provider you want to use. Example:
-     *
      * @see https://next-auth.js.org/providers/github
      */
   ],

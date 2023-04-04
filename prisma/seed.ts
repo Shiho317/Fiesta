@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import Chance from "chance";
 
 import { prisma } from "~/server/db";
+import { generateJWT } from "~/utils/server";
 
 const chance = new Chance();
 
@@ -20,10 +22,13 @@ const seed = async () => {
 
   //create Admin user
   console.log("Creating admin...");
+  const password = "admin";
+  const token = generateJWT({ password });
   await prisma.user.create({
     data: {
       name: "Admin",
       email: "admin@fiesta.com",
+      password: token,
       emailVerified: new Date(),
     },
   });
