@@ -9,9 +9,7 @@ import Header from "~/components/common/base/Header";
 import { type NextPageWithLayout } from "~/types";
 
 //if user is not logged in, stay here. login button -> login
-//TODO: if user is already logged in, login button -> jump to user home page.
-
-//need to create: sign up page
+//if user is already logged in, login button -> jump to user home page.
 
 const Home: NextPageWithLayout = () => {
   const router = useRouter();
@@ -23,16 +21,18 @@ const Home: NextPageWithLayout = () => {
       <main className="h-screen w-screen bg-white">
         <Header />
         <div>
-          <div className="absolute left-1/4 top-1/2 z-10 flex h-1/2 w-1/3 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-sm border border-gray-200 bg-gray-200/25 shadow-md shadow-gray-300/30 backdrop-blur-md backdrop-filter">
+          <div className="absolute left-1/4 top-1/2 z-10 flex h-1/2 w-1/3 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-lg border border-gray-200 bg-gray-100/25 shadow-md shadow-gray-300/30 backdrop-blur-md backdrop-filter">
             <div className="w-full p-8">
-              <h1 className="text-5xl font-semibold">For Special Day</h1>
-              <p className="mt-4 text-base text-gray-500">
+              {/* TODO:  maybe different font for sub title? */}
+              <h1 className="text-4xl font-semibold">BE SPECIAL</h1>
+              <p className="mt-6 text-base text-gray-500">
                 We help you to organize any kind of party from planning to
-                hosting more easier. Your special day will be more special.
+                hosting more easier. <br /> Your special day will be more
+                special.
               </p>
               <Button
                 content="LOGIN"
-                class="mt-4 rounded-sm"
+                class="mt-12 px-8"
                 onClick={() => clickHandler()}
               />
             </div>

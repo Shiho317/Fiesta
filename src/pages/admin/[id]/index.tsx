@@ -1,10 +1,12 @@
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import React, { useEffect } from "react";
+
 import AuthenticatedLayout from "~/components/common/AuthenticatedLayout";
+
 import { type NextPageWithLayout } from "~/types";
 
-const AdminDashBoard: NextPageWithLayout = () => {
+const AdminSome: NextPageWithLayout = () => {
   const router = useRouter();
   const { data: session } = useSession();
 
@@ -15,7 +17,7 @@ const AdminDashBoard: NextPageWithLayout = () => {
   return <>{session?.user.name}</>;
 };
 
-AdminDashBoard.getLayout = (page) => {
+AdminSome.getLayout = (page) => {
   return (
     <AuthenticatedLayout>
       <>{page}</>
@@ -23,4 +25,4 @@ AdminDashBoard.getLayout = (page) => {
   );
 };
 
-export default AdminDashBoard;
+export default AdminSome;

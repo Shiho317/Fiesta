@@ -1,7 +1,9 @@
 import { useSession } from "next-auth/react";
 import Head from "next/head";
 import React from "react";
+
 import DefaultLayout from "./DefaultLayout";
+import SideBar from "./SideBar";
 
 type LayoutProp = {
   children: React.ReactNode;
@@ -29,7 +31,11 @@ const AuthenticatedLayout = (props: LayoutProp) => {
           content="Fiesta is a platform for organize your party. We help you to host any kind of party from planning to hosting more easier. Your special day will be more special."
         />
       </Head>
-      {props.children}
+      <div className="flex">
+        {/* add sidebar */}
+        <SideBar />
+        {props.children}
+      </div>
     </>
   );
 };

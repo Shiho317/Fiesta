@@ -1,6 +1,7 @@
 import { getServerSession } from "next-auth";
 import EmailProvider from "next-auth/providers/email";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import { createTransport } from "nodemailer";
 
 import { env } from "~/env.mjs";
 import { prisma } from "~/server/db";
@@ -42,6 +43,10 @@ export const authOptions: NextAuthOptions = {
   },
   pages: {
     signIn: "/auth/login",
+    signOut: "/auth/logout",
+    error: "/auth/error", // Error code passed in query string as ?error=
+    verifyRequest: "/auth/verify-request", // (used for check email message)
+    newUser: "/auth/signup", // New users will be directed here on first sign in (leave the property out if not of interest)
   },
   callbacks: {
     redirect({ url, baseUrl }) {
@@ -51,16 +56,10 @@ export const authOptions: NextAuthOptions = {
       else if (new URL(url).origin === baseUrl) return url;
       return baseUrl;
     },
-    async session({ session, user }) {
+    session({ session, user }) {
       if (session.user) {
-        const fetchUser = await prisma.user.findUnique({
-          where: {
-            id: user.id,
-          },
-        });
         session.user.id = user.id;
         session.user.email = user.email;
-        session.user.name = fetchUser?.name;
       }
       // session.user.role = user.role; <-- put other properties on the session here
       return session;
@@ -71,6 +70,41 @@ export const authOptions: NextAuthOptions = {
     EmailProvider({
       server: env.EMAIL_SERVER,
       from: env.EMAIL_FROM,
+      async sendVerificationRequest({
+        identifier: email,
+        url,
+        provider: { server: from },
+      }) {
+        const userExists = await prisma.user.findUnique({
+          where: {
+            email,
+          },
+        });
+        if (!userExists) {
+          throw new Error(
+            `Email ${email} does not have any account. Please sign up before login.`
+          );
+        }
+        const { host } = new URL(url);
+        const transport = createTransport(this.server);
+        const result = await transport.sendMail({
+          to: email,
+          from: from as string,
+          subject: "Login to Fiesta",
+          text: `Fiesta sign in to ${host}`,
+          html: `Sign in to ${host} \n\n ${url}`,
+        });
+        if (!result.accepted || result.accepted.length === 0) {
+          throw new Error("Failed to send email.");
+        }
+        //TODO: add email template and connect with mailer/server.ts
+        // const mailOption = {
+        //   to: email,
+        //   from,
+        //   subject: "Login to Fiesta",
+        //   text:
+        // }
+      },
     }),
     // CredentialsProvider({
     //   type: "credentials",

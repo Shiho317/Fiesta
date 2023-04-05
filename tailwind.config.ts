@@ -11,7 +11,11 @@ export default {
           300: "#c4b5fd",
           400: "#a78bfa",
           500: "#8b5cf6",
+          900: "#701a75",
         },
+      },
+      fontFamily: {
+        basic: ["Montserrat", "sans-serif"],
       },
     },
   },

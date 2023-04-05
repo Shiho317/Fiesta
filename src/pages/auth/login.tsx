@@ -4,11 +4,13 @@ import { useRouter } from "next/router";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
+import Link from "next/link";
 
 import Button from "~/components/common/base/Button";
 import Header from "~/components/common/base/Header";
 import DefaultLayout from "~/components/common/DefaultLayout";
 import classicBalloons from "../../../public/images/classic-balloons.jpg";
+import Main from "~/components/common/base/Main";
 
 import { type NextPageWithLayout } from "~/types";
 
@@ -31,37 +33,43 @@ const Login: NextPageWithLayout = () => {
       email: data.email,
       callbackUrl: "/admin",
     });
-    if (result?.ok) {
-      toast.success("We sent you email to login.");
+    if (result?.error) {
+      toast.error("[🔴 ERROR] Failed to login with your email.");
     } else {
-      toast.error("Your email or password is wrong.");
+      void router.push("/auth/verify-request");
     }
   };
 
   return (
-    <main className="flex h-screen w-full items-center justify-center">
+    <Main>
       <Header />
-      <div className="z-10 flex h-1/2 w-1/3 items-center justify-center rounded-sm border border-gray-200 bg-gray-200/50 p-4 shadow-md shadow-gray-300/30 backdrop-blur-md backdrop-filter">
+      <div className="z-10 flex h-1/2 w-1/3 flex-col items-center justify-center rounded-lg border border-gray-200 bg-gray-200/50 p-4 shadow-md shadow-gray-300/30 backdrop-blur-md backdrop-filter">
         <form
-          className="grid w-2/3 grid-rows-4 gap-8"
+          className="grid w-2/3 grid-rows-3 gap-8"
           onSubmit={handleSubmit(onSubmit)}
         >
-          <h2 className="text-center text-2xl tracking-wider">WELCOME</h2>
+          <h2 className="text-center text-2xl">HELLO</h2>
           <input
             id="email"
             className="text-center text-black outline-none"
-            type="text"
+            type="email"
             placeholder="YOUR EMAIL"
             {...register("email")}
             required
           />
           <Button content="LOGIN" type="submit" />
         </form>
+        <Link
+          href={"/auth/signup"}
+          className="mt-4 text-sm text-fiesta-400 hover:text-fiesta-300"
+        >
+          You don&apos;t have account?
+        </Link>
       </div>
       <div className="absolute right-0 h-full w-full mix-blend-multiply">
         <Image src={classicBalloons} alt="fiesta-image" fill={true} priority />
       </div>
-    </main>
+    </Main>
   );
 };
 

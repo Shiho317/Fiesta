@@ -1,6 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { verifyAndDecodeJWT } from "~/utils/server";
+
+import { UserSchema } from "~/utils/schema";
+import { generateJWT } from "~/utils/server";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 
 export const userRouter = createTRPCRouter({
@@ -12,40 +15,58 @@ export const userRouter = createTRPCRouter({
     });
     return user;
   }),
-  getByEmailAndPassword: publicProcedure
-    .input(z.object({ email: z.string(), password: z.string() }))
-    .query(async ({ ctx, input }) => {
-      const user = await ctx.prisma.user.findUnique({
+  getByEmail: protectedProcedure
+    .input(z.object({ email: z.string() }))
+    .query(({ ctx, input }) => {
+      return ctx.prisma.user.findUnique({
         where: {
           email: input.email,
         },
       });
-      if (!user) {
-        return {
-          statusCode: 500,
-          data: {
-            message: "User doesn't exist.",
-            user: null,
-          },
-        };
+    }),
+  createUser: publicProcedure
+    .input(UserSchema)
+    .mutation(async ({ ctx, input }) => {
+      const { name, email, password } = input;
+      const encodedPassword = generateJWT({
+        password,
+      });
+      const newUser = await ctx.prisma.user.create({
+        data: {
+          name,
+          email,
+          password: encodedPassword,
+        },
+      });
+      if (!newUser) {
+        throw new TRPCError({
+          message: "Failed to create new user.",
+          code: "BAD_REQUEST",
+        });
       }
-      const tokenDecoded = verifyAndDecodeJWT(user.password);
-      if (tokenDecoded === input.password) {
-        return {
-          statusCode: 200,
-          data: {
-            message: "User found.",
-            user,
-          },
-        };
-      } else {
-        return {
-          statusCode: 501,
-          data: {
-            message: "User password is wrong.",
-            user: null,
-          },
-        };
+      return newUser;
+    }),
+  verifiedById: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const verifiedUser = await ctx.prisma.user.update({
+        where: {
+          id: input.id,
+        },
+        data: {
+          emailVerified: new Date(),
+        },
+      });
+      if (!verifiedUser) {
+        throw new TRPCError({
+          message: "Failed to verify user.",
+          code: "BAD_REQUEST",
+        });
       }
+      return verifiedUser;
     }),
 });
