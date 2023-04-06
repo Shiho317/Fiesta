@@ -61,6 +61,7 @@ model User {
 model Event {
     id String @id @unique @default(cuid())
     name String
+    status EventStatus @default(PLANNING)
     hostId String
     host User @relation(fields: [hostId], references: [id], onDelete: Cascade)
     guests Guest[]
@@ -69,6 +70,8 @@ model Event {
     venueId String?
     venue Venue? @relation(fields: [venueId], references: [id], onDelete: Cascade)
     invitations Invitation[]
+    eventDate DateTime
+    canceled Boolean? @default(false)
     updatedAt DateTime? @updatedAt
     createdAt DateTime? @default(now())
 }
@@ -136,4 +139,10 @@ model EmailTemplate {
     name String
     updatedAt DateTime? @updatedAt
     createdAt DateTime? @default(now())
+}
+
+enum EventStatus {
+    COMPLETED
+    CANCELED
+    PLANNING
 }

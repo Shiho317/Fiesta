@@ -25,7 +25,7 @@ const AdminDashBoard: NextPageWithLayout = () => {
   }
 
   return (
-    <Main className="to-80 bg-gradient-to-tr from-fiesta-100 from-10% via-white via-60% to-fiesta-100">
+    <Main className="flex items-center justify-center">
       <h1 className="text-7xl font-bold leading-loose text-fiesta-400/50">
         WELCOME BACK!
       </h1>

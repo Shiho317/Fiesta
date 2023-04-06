@@ -8,7 +8,7 @@ type MainProp = {
 const Main = (props: MainProp) => {
   return (
     <main
-      className={`flex h-screen w-full items-center justify-center ${
+      className={`to-80 h-screen w-full bg-gradient-to-tr from-fiesta-100 from-10% via-white via-60% to-fiesta-100 ${
         props.className ?? ""
       }`}
     >

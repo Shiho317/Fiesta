@@ -22,7 +22,7 @@ const SideBar = () => {
     },
     {
       name: "EVENTS",
-      path: "",
+      path: "/admin/events",
       logo: CalendarIcon,
     },
     {
