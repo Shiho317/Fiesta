@@ -26,7 +26,7 @@ const SignUp: NextPageWithLayout = () => {
   const { register, handleSubmit } = useForm<SignUpProp>();
 
   const { mutate: createUser } = api.user.createUser.useMutation({
-    async onSuccess(data) {
+    onSuccess: async (data) => {
       const result = await signIn("email", {
         redirect: false,
         email: data.email,
@@ -38,7 +38,7 @@ const SignUp: NextPageWithLayout = () => {
         void router.push("/auth/verify-request");
       }
     },
-    onError(error) {
+    onError: (error) => {
       toast.error(error.message);
     },
   });

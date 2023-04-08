@@ -75,9 +75,9 @@ const EventTable = (props: EventProp) => {
   };
 
   return (
-    <div>
+    <>
       <Table data={tableData()} columns={cols} />
-    </div>
+    </>
   );
 };
 

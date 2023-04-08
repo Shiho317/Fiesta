@@ -5,3 +5,29 @@ export const UserSchema = z.object({
   email: z.string(),
   password: z.string(),
 });
+
+export const EventSchema = z.object({
+  name: z.string(),
+  hostId: z.string(),
+  plannerId: z.string().optional().nullable(),
+  venueId: z.string().optional().nullable(),
+  eventDate: z.date(),
+});
+
+export const VenueSchema = z.object({
+  name: z.string(),
+  country: z.string(),
+  state_province: z.string(),
+  city: z.string(),
+  address: z.string(),
+  zipcode: z.string(),
+  userId: z.string(),
+});
+
+export const PlannerSchema = z.object({
+  name: z.string(),
+  email: z.string(),
+  phone: z.string().optional().nullable(),
+  organization: z.string().optional().nullable(),
+  userId: z.string(),
+});

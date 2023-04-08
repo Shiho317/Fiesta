@@ -2,13 +2,13 @@ import React from "react";
 
 type ButtonProp = {
   content: string;
-  class?: string;
+  className?: string;
   type?: "button" | "submit" | "reset";
   onClick?: () => void;
 };
 
 const Button = (props: ButtonProp) => {
-  const { content, class: className, type, onClick } = props;
+  const { content, className, type, onClick } = props;
   return (
     <button
       type={type ?? "button"}
