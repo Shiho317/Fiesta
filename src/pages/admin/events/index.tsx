@@ -12,7 +12,12 @@ import EventTable from "~/components/events/EventTable";
 import { type NextPageWithLayout } from "~/types";
 
 const EventBoard: NextPageWithLayout = () => {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
+
+  if (status === "loading") {
+    return <h1>Loading</h1>;
+  }
+
   const { data: comingEvents } = api.event.getComingEventByUserId.useQuery({
     userId: session?.user.id as string,
   });
@@ -23,12 +28,12 @@ const EventBoard: NextPageWithLayout = () => {
   return (
     <Main className="grid grid-rows-2 gap-2 p-8">
       {comingEvents && comingEvents.length > 0 ? (
-        <EventTable {...comingEvents} />
+        <EventTable events={comingEvents} />
       ) : (
         <Empty title="Coming Up" content="No Coming Up Events" />
       )}
       {pastEvents && pastEvents.length > 0 ? (
-        <EventTable {...pastEvents} />
+        <EventTable events={pastEvents} />
       ) : (
         <Empty title="Memory" content="No Past Events" />
       )}

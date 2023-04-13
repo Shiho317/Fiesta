@@ -1,6 +1,5 @@
 import { useSession } from "next-auth/react";
 import Error from "next/error";
-import { useRouter } from "next/router";
 import React from "react";
 
 import AuthenticatedLayout from "~/components/common/AuthenticatedLayout";
@@ -9,8 +8,7 @@ import Main from "~/components/common/base/Main";
 import { type NextPageWithLayout } from "~/types";
 
 const AdminDashBoard: NextPageWithLayout = () => {
-  const { data: session, status } = useSession();
-  const router = useRouter();
+  const { status } = useSession();
 
   if (status === "loading") {
     return (

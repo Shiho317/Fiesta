@@ -1,8 +1,7 @@
 import { z } from "zod";
+
 import { createTRPCRouter, protectedProcedure } from "../trpc";
-import moment from "moment";
 import { EventSchema, PlannerSchema, VenueSchema } from "~/utils/schema";
-import { connect } from "http2";
 
 export const eventRouter = createTRPCRouter({
   getById: protectedProcedure

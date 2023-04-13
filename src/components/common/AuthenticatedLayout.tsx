@@ -10,8 +10,7 @@ type LayoutProp = {
 };
 
 const AuthenticatedLayout = (props: LayoutProp) => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { data: session, status } = useSession();
+  const { status } = useSession();
 
   if (status === "loading") {
     //TODO: add loading component

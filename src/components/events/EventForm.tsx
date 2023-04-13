@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
-import Input from "../common/base/Input";
-import { FieldValues, UseFormRegister, useForm } from "react-hook-form";
-import Button from "../common/base/Button";
-import { api } from "~/utils/api";
+import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
+
+import Input from "../common/base/Input";
+import Button from "../common/base/Button";
+import { api } from "~/utils/api";
+import moment from "moment";
 
 type EventInputProp = {
   name: string;
@@ -21,7 +23,12 @@ type EventInputProp = {
 };
 
 const EventForm = () => {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
+
+  // if(status === "loading"){
+  //   return;
+  // }
+
   const { register, handleSubmit, setValue } = useForm<EventInputProp>();
   const router = useRouter();
   const { id: eventId } = router.query;
@@ -52,12 +59,9 @@ const EventForm = () => {
 
   const venueOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    const splitNameAndAddres = value.split(" / ");
-    const name = splitNameAndAddres[0]?.trim();
-    const address = splitNameAndAddres[1]?.trim();
-    const venueDataFromDB = eventVenues?.find(
-      (venue) => venue.name === name && venue.address === address
-    );
+    const splitNameAndAddress = value.split(" / ");
+    const id = splitNameAndAddress[1]?.trim();
+    const venueDataFromDB = eventVenues?.find((venue) => venue.id === id);
     if (venueDataFromDB) {
       setVenueId(venueDataFromDB.id);
       setValue("venueName", venueDataFromDB.name);
@@ -89,7 +93,7 @@ const EventForm = () => {
     createEvent({
       hostId: session?.user.id as string,
       name,
-      eventDate,
+      eventDate: moment(eventDate).toDate(),
       venueId,
       venueName,
       plannerId,
@@ -127,14 +131,14 @@ const EventForm = () => {
           label="Event Name"
           placeholder="Amy's 7th Birthday Party"
           required={true}
-          {...register}
+          register={register}
         />
         <Input
           type="datetime-local"
           name="eventDate"
           label="Event Date"
           required={true}
-          {...register}
+          register={register}
         />
         <h1 className="col-span-2 text-xl text-gray-500">
           Event Venue (Optional)
@@ -148,15 +152,15 @@ const EventForm = () => {
           onChangeHandler={(e: React.ChangeEvent<HTMLInputElement>) =>
             venueOnChange(e)
           }
+          // register={register}
           {...register}
         >
           <datalist id="eventVenue">
             {eventVenues &&
               eventVenues.map((venue) => (
-                <option
-                  key={venue.id}
-                  value={`${venue.name} / ${venue.address}`}
-                />
+                <option key={venue.id} value={`${venue.name} / ${venue.id}`}>
+                  {venue.address}
+                </option>
               ))}
           </datalist>
         </Input>

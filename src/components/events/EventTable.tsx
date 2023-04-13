@@ -1,11 +1,13 @@
 import React, { useMemo } from "react";
-
+import moment from "moment";
 import { type EventStatus } from "@prisma/client";
 import { type ColumnDef } from "@tanstack/react-table";
+
 import Table from "../common/base/Table";
-import moment from "moment";
+import ActionButton from "../common/ActionButton";
 
 type Event = {
+  id: string;
   name: string;
   status: string;
   date: string;
@@ -14,20 +16,24 @@ type Event = {
 };
 
 type EventProp = {
-  id: string;
-  name: string;
-  status: EventStatus;
-  hostId: string;
-  eventDate: Date;
-  guests: {
+  events: {
     id: string;
-  }[];
-  venue: {
     name: string;
-  } | null;
-}[];
+    status: EventStatus;
+    hostId: string;
+    eventDate: Date;
+    guests: {
+      id: string;
+    }[];
+    venue: {
+      name: string;
+    } | null;
+  }[];
+};
 
 const EventTable = (props: EventProp) => {
+  const { events } = props;
+
   const cols = useMemo<ColumnDef<Event>[]>(
     () => [
       {
@@ -55,20 +61,27 @@ const EventTable = (props: EventProp) => {
         cell: (row) => row.renderValue(),
         accessorKey: "date",
       },
+      {
+        header: "",
+        cell: (row) => <ActionButton row={row.row} id={row.column.id} />,
+        accessorKey: "id",
+      },
     ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
 
   const tableData = () => {
     const items = [];
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < events.length; i++) {
       items.push({
-        name: props[i]?.name as string,
+        id: events[i]?.id as string,
+        name: events[i]?.name as string,
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        status: props[i]?.status as string,
-        date: moment(props[i]?.eventDate).format("MMM Do YYYY, h:mm a"),
-        guests: props[i]?.guests.length as number,
-        venue: props[i]?.venue?.name as string,
+        status: events[i]?.status as string,
+        date: moment(events[i]?.eventDate).format("MMM Do YYYY, h:mm a"),
+        guests: events[i]?.guests.length as number,
+        venue: events[i]?.venue?.name as string,
       });
     }
     return items;
