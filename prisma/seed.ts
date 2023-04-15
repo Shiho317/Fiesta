@@ -24,7 +24,7 @@ const seed = async () => {
   console.log("Creating admin...");
   const password = "admin";
   const token = generateJWT({ password });
-  await prisma.user.create({
+  const user = await prisma.user.create({
     data: {
       name: "Admin",
       email: "admin@fiesta.com",
@@ -34,7 +34,7 @@ const seed = async () => {
   });
   console.log(`Created admin user.`);
 
-  //create 5 venues
+  // create 5 venues
   console.log("Creating venues...");
   let totalVenue = 0;
   for (let i = 0; i < 5; i++) {
@@ -50,6 +50,11 @@ const seed = async () => {
           chance.postal(),
           chance.postcode(),
         ]),
+        registeredBy: {
+          connect: {
+            id: user.id,
+          },
+        },
       },
     });
     console.info(`Created venue ${venue.name}`);
@@ -57,7 +62,7 @@ const seed = async () => {
   }
   console.info(`Created ${totalVenue} venues`);
 
-  //Create 5 planners
+  // Create 5 planners
   console.log("Creating planners...");
   let totalPlanner = 0;
   for (let i = 0; i < 5; i++) {
@@ -67,6 +72,11 @@ const seed = async () => {
         email: chance.email(),
         phone: chance.phone(),
         organization: chance.company(),
+        client: {
+          connect: {
+            id: user.id,
+          },
+        },
       },
     });
     console.info(`Created planner ${planner.name}`);

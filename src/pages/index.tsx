@@ -32,7 +32,7 @@ const Home: NextPageWithLayout = () => {
               </p>
               <Button
                 content="LOGIN"
-                class="mt-12 px-8"
+                className="mt-12 px-8"
                 onClick={() => clickHandler()}
               />
             </div>

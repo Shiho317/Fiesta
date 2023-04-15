@@ -41,7 +41,7 @@ const Login: NextPageWithLayout = () => {
   };
 
   return (
-    <Main>
+    <Main className="flex items-center justify-center">
       <Header />
       <div className="z-10 flex h-1/2 w-1/3 flex-col items-center justify-center rounded-lg border border-gray-200 bg-gray-200/50 p-4 shadow-md shadow-gray-300/30 backdrop-blur-md backdrop-filter">
         <form

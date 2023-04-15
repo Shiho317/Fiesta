@@ -55,12 +55,15 @@ model User {
     accounts      Account[]
     sessions      Session[]
     hosting       Event[]
+    places        Venue[]
+    planners      Planner[]
     invitationsSent Invitation[]
 }
 
 model Event {
     id String @id @unique @default(cuid())
     name String
+    status EventStatus @default(PLANNING)
     hostId String
     host User @relation(fields: [hostId], references: [id], onDelete: Cascade)
     guests Guest[]
@@ -69,6 +72,8 @@ model Event {
     venueId String?
     venue Venue? @relation(fields: [venueId], references: [id], onDelete: Cascade)
     invitations Invitation[]
+    eventDate DateTime
+    canceled Boolean? @default(false)
     updatedAt DateTime? @updatedAt
     createdAt DateTime? @default(now())
 }
@@ -91,6 +96,8 @@ model Planner {
     phone String?
     events Event[]
     organization String?
+    clientId String
+    client User @relation(fields: [clientId], references: [id], onDelete: Cascade)
     updatedAt DateTime? @updatedAt
     createdAt DateTime? @default(now())
 }
@@ -103,7 +110,9 @@ model Venue {
     city String
     address String
     zipcode String
-    events Event[]
+    registeredById String 
+    registeredBy User? @relation(fields: [registeredById], references: [id], onDelete: Cascade)
+    event Event[]
 }
 
 model Invitation {
@@ -136,4 +145,10 @@ model EmailTemplate {
     name String
     updatedAt DateTime? @updatedAt
     createdAt DateTime? @default(now())
+}
+
+enum EventStatus {
+    COMPLETED
+    CANCELED
+    PLANNING
 }
