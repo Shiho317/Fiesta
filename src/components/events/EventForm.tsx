@@ -3,15 +3,15 @@ import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
+import moment from "moment";
 
 import Input from "../common/base/Input";
 import Button from "../common/base/Button";
 import { api } from "~/utils/api";
-import moment from "moment";
 
 type EventInputProp = {
   name: string;
-  eventDate: Date;
+  eventDate: Date | string;
   venueName?: string;
   country?: string;
   state_province?: string;
@@ -45,9 +45,10 @@ const EventForm = () => {
     userId: session?.user.id as string,
   });
 
-  const { mutate: createEvent } = api.event.createEvent.useMutation({
+  const { mutate: upsertEvent } = api.event.upsertEvent.useMutation({
     onSuccess: () => {
-      toast.success("Congrats!!🎉 You successfully created new event.");
+      toast.success("Congrats!!🎉 You successfully saved event.");
+      void router.push("/admin/events");
     },
     onError: (error) => {
       toast.error(error.message);
@@ -56,41 +57,49 @@ const EventForm = () => {
 
   const [venueId, setVenueId] = useState<string>();
   const [plannerId, setPlannerId] = useState<string>();
+  const [venueFromList, setVenueFromList] = useState<boolean>(false);
 
-  const venueOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const venueOnChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;
-    const splitNameAndAddress = value.split(" / ");
-    const id = splitNameAndAddress[1]?.trim();
-    const venueDataFromDB = eventVenues?.find((venue) => venue.id === id);
+    const venueDataFromDB = eventVenues?.find((venue) => venue.id === value);
+    setVenueId(venueDataFromDB?.id ?? "");
+    setValue("venueName", venueDataFromDB?.name ?? "");
+    setValue("country", venueDataFromDB?.country ?? "");
+    setValue("state_province", venueDataFromDB?.state_province ?? "");
+    setValue("city", venueDataFromDB?.city ?? "");
+    setValue("address", venueDataFromDB?.address ?? "");
+    setValue("zipcode", venueDataFromDB?.zipcode ?? "");
     if (venueDataFromDB) {
-      setVenueId(venueDataFromDB.id);
-      setValue("venueName", venueDataFromDB.name);
-      setValue("country", venueDataFromDB.country);
-      setValue("state_province", venueDataFromDB.state_province);
-      setValue("city", venueDataFromDB.city);
-      setValue("address", venueDataFromDB.address);
-      setValue("zipcode", venueDataFromDB.zipcode);
+      setVenueFromList(true);
+    } else {
+      setVenueFromList(false);
     }
   };
 
-  const plannerOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const [plannerFromList, setPlannerFromList] = useState<boolean>(false);
+
+  const plannerOnChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;
-    const splitEmailAndName = value.split(" / ");
-    const email = splitEmailAndName[0]?.trim();
     const plannerDataFromDB = eventPlanners?.find(
-      (planner) => planner.email === email
+      (planner) => planner.id === value
     );
+    setPlannerId(plannerDataFromDB?.id ?? "");
+    setValue("plannerName", plannerDataFromDB?.name ?? "");
+    setValue("plannerEmail", plannerDataFromDB?.email ?? "");
+    setPlannerFromList(true);
+
     if (plannerDataFromDB) {
-      setPlannerId(plannerDataFromDB.id);
-      setValue("plannerName", plannerDataFromDB.name);
-      setValue("plannerEmail", plannerDataFromDB.email);
+      setPlannerFromList(true);
+    } else {
+      setPlannerFromList(false);
     }
   };
 
   const onSubmit = (data: EventInputProp) => {
     const { name, eventDate, venueName, plannerEmail, plannerName, ...rest } =
       data;
-    createEvent({
+    upsertEvent({
+      eventId: eventId as string,
       hostId: session?.user.id as string,
       name,
       eventDate: moment(eventDate).toDate(),
@@ -103,10 +112,14 @@ const EventForm = () => {
     });
   };
 
+  console.log(eventData);
+
   useEffect(() => {
     if (eventData && !error) {
+      const yearAndDate = moment(eventData?.eventDate).format("YYYY-MM-DD");
+      const timeAndSecond = moment(eventData?.eventDate).format("HH:mm");
       setValue("name", eventData.name);
-      setValue("eventDate", eventData.eventDate);
+      setValue("eventDate", `${yearAndDate}T${timeAndSecond}`);
       setValue("venueName", eventData.venue?.name);
       setValue("address", eventData.venue?.address);
       setValue("country", eventData.venue?.country);
@@ -123,7 +136,7 @@ const EventForm = () => {
     <div className="relative z-10 mt-4 rounded-lg border border-gray-200 bg-fiesta-100/30 p-4 shadow-md shadow-gray-300/30 backdrop-blur-md backdrop-filter">
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="grid grid-cols-2 gap-4"
+        className="grid grid-cols-2 gap-2"
       >
         <Input
           type="text"
@@ -143,33 +156,37 @@ const EventForm = () => {
         <h1 className="col-span-2 text-xl text-gray-500">
           Event Venue (Optional)
         </h1>
+        <select
+          className="col-start-1 col-end-2 p-3"
+          onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+            venueOnChange(e)
+          }
+        >
+          <option>Select from your venue list</option>
+          {eventVenues &&
+            eventVenues.map((venue) => (
+              <option key={venue.id} value={venue.id}>
+                {venue.name}
+              </option>
+            ))}
+        </select>
         <Input
           type="text"
           name="venueName"
           label="Venue"
           placeholder="David Lam Park"
           list="eventVenue"
-          onChangeHandler={(e: React.ChangeEvent<HTMLInputElement>) =>
-            venueOnChange(e)
-          }
-          // register={register}
-          {...register}
-        >
-          <datalist id="eventVenue">
-            {eventVenues &&
-              eventVenues.map((venue) => (
-                <option key={venue.id} value={`${venue.name} / ${venue.id}`}>
-                  {venue.address}
-                </option>
-              ))}
-          </datalist>
-        </Input>
+          className="col-start-1 col-end-2"
+          register={register}
+          readOnly={venueFromList}
+        />
         <Input
           type="text"
           name="address"
           label="Address"
           placeholder="1300 Pacific Blvd"
           register={register}
+          readOnly={venueFromList}
         />
         <Input
           type="text"
@@ -177,6 +194,7 @@ const EventForm = () => {
           label="City"
           placeholder="Vancouver"
           register={register}
+          readOnly={venueFromList}
         />
         <Input
           type="text"
@@ -184,6 +202,7 @@ const EventForm = () => {
           label="State / Province"
           placeholder="BC"
           register={register}
+          readOnly={venueFromList}
         />
         <Input
           type="text"
@@ -191,6 +210,7 @@ const EventForm = () => {
           label="Country"
           placeholder="Canada"
           register={register}
+          readOnly={venueFromList}
         />
         <Input
           type="text"
@@ -198,43 +218,49 @@ const EventForm = () => {
           label="Zip Code"
           placeholder="V6Z 2Y1"
           register={register}
+          readOnly={venueFromList}
         />
         <h1 className="col-span-2 text-xl text-gray-500">
           Event Planner (Optional)
         </h1>
+        <select
+          className="col-start-1 col-end-2 p-3"
+          onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+            plannerOnChange(e)
+          }
+        >
+          <option>Select from your planner list</option>
+          {eventPlanners &&
+            eventPlanners.map((planner) => (
+              <option key={planner.id} value={planner.id}>
+                {planner.name}
+              </option>
+            ))}
+        </select>
         <Input
-          type="email"
+          type="text"
           name="plannerEmail"
           label="Email"
           list="eventPlanner"
           placeholder="janesmith@fiesta.com"
-          onChangeHandler={(e: React.ChangeEvent<HTMLInputElement>) =>
-            plannerOnChange(e)
-          }
-          {...register}
-        >
-          <datalist id="eventPlanner">
-            {eventPlanners &&
-              eventPlanners.map((planner) => (
-                <option
-                  key={planner.id}
-                  value={`${planner.email} / ${planner.name}`}
-                />
-              ))}
-          </datalist>
-        </Input>
+          className="col-start-1 col-end-2"
+          register={register}
+          readOnly={plannerFromList}
+        />
         <Input
           type="text"
           label="Name"
           name="plannerName"
           placeholder="Jane Smith"
           register={register}
+          readOnly={plannerFromList}
         />
         <div className="col-span-2 mt-4 flex justify-between">
           <Button
             type="button"
             content="Back"
             className="rounded-md bg-gray-300 px-8 hover:bg-gray-200"
+            onClick={() => void router.push("/admin/events")}
           />
           <Button type="submit" content="Save" className="rounded-md px-8" />
         </div>

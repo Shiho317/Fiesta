@@ -71,10 +71,11 @@ export const eventRouter = createTRPCRouter({
         },
       });
     }),
-  createEvent: protectedProcedure
+  upsertEvent: protectedProcedure
     .input(
       EventSchema.merge(
         z.object({
+          eventId: z.string().optional(),
           venueId: z.string().optional(),
           venueName: z.string().optional().nullable(),
           country: z.string().optional().nullable(),
@@ -103,6 +104,7 @@ export const eventRouter = createTRPCRouter({
         city,
         address,
         zipcode,
+        eventId,
       } = input;
 
       let eventVenueId = null;
@@ -134,10 +136,10 @@ export const eventRouter = createTRPCRouter({
 
       let eventPlannerId = null;
       //if new planner information exists, create planner
-      if (plannerName && plannerEmail) {
+      if (plannerEmail && !plannerId) {
         const newPlanner = await ctx.prisma.planner.create({
           data: {
-            name: plannerName,
+            name: plannerName as string,
             email: plannerEmail,
             client: {
               connect: {
@@ -155,8 +157,11 @@ export const eventRouter = createTRPCRouter({
         eventPlannerId = plannerId;
       }
 
-      const newEvent = await ctx.prisma.event.create({
-        data: {
+      const event = await ctx.prisma.event.upsert({
+        where: {
+          id: eventId ?? "",
+        },
+        create: {
           name,
           eventDate,
           host: {
@@ -179,12 +184,45 @@ export const eventRouter = createTRPCRouter({
             },
           }),
         },
+        update: {
+          name,
+          eventDate,
+          updatedAt: new Date(),
+          host: {
+            connect: {
+              id: hostId,
+            },
+          },
+          ...(eventVenueId && {
+            venue: {
+              connect: {
+                id: eventVenueId,
+              },
+            },
+          }),
+          ...(eventPlannerId && {
+            planner: {
+              connect: {
+                id: eventPlannerId,
+              },
+            },
+          }),
+        },
       });
 
-      if (!newEvent) {
+      if (!event) {
         throw new Error("Failed to create new event.");
       }
 
-      return newEvent;
+      return event;
+    }),
+  deleteEvent: protectedProcedure
+    .input(z.object({ eventId: z.string() }))
+    .mutation(({ ctx, input }) => {
+      return ctx.prisma.event.delete({
+        where: {
+          id: input.eventId,
+        },
+      });
     }),
 });
