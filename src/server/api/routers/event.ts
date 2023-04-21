@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "../trpc";
-import { EventSchema, PlannerSchema, VenueSchema } from "~/utils/schema";
+import { EventSchema } from "~/utils/schema";
 
 export const eventRouter = createTRPCRouter({
   getById: protectedProcedure
@@ -14,6 +14,38 @@ export const eventRouter = createTRPCRouter({
         include: {
           venue: true,
           planner: true,
+        },
+      });
+    }),
+  getAllEventsByUserId: protectedProcedure
+    .input(z.object({ userId: z.string() }))
+    .query(({ ctx, input }) => {
+      return ctx.prisma.event.findMany({
+        where: {
+          hostId: input.userId,
+          eventDate: {
+            gte: new Date(),
+          },
+        },
+        orderBy: {
+          eventDate: "asc",
+        },
+        select: {
+          id: true,
+          name: true,
+          status: true,
+          hostId: true,
+          eventDate: true,
+          guests: {
+            select: {
+              id: true,
+            },
+          },
+          venue: {
+            select: {
+              name: true,
+            },
+          },
         },
       });
     }),
@@ -83,7 +115,6 @@ export const eventRouter = createTRPCRouter({
           city: z.string().optional().nullable(),
           address: z.string().optional().nullable(),
           zipcode: z.string().optional().nullable(),
-          plannerId: z.string().optional(),
           plannerName: z.string().optional(),
           plannerEmail: z.string().optional(),
         })
@@ -94,7 +125,6 @@ export const eventRouter = createTRPCRouter({
         name,
         eventDate,
         venueName,
-        plannerId,
         plannerName,
         plannerEmail,
         hostId,
@@ -107,54 +137,67 @@ export const eventRouter = createTRPCRouter({
         eventId,
       } = input;
 
-      let eventVenueId = null;
-      //if new venue information exists, create venue
-      if (!venueId && venueName) {
-        const newVenue = await ctx.prisma.venue.create({
-          data: {
-            name: venueName,
-            country: country as string,
-            state_province: state_province as string,
-            city: city as string,
-            address: address as string,
-            zipcode: zipcode as string,
-            registeredBy: {
-              connect: {
-                id: hostId,
-              },
+      //create venue of update
+      const eventVenue = await ctx.prisma.venue.upsert({
+        where: {
+          id: venueId ?? "",
+        },
+        create: {
+          name: venueName as string,
+          country: country as string,
+          state_province: state_province as string,
+          city: city as string,
+          address: address as string,
+          zipcode: zipcode as string,
+          registeredBy: {
+            connect: {
+              id: hostId,
             },
           },
-        });
-        if (!newVenue) {
-          throw new Error("Failed to create new event.");
-        }
-        eventVenueId = newVenue.id;
-      } else if (venueId) {
-        //planner is already exists in DB
-        eventVenueId = venueId;
+        },
+        update: {
+          name: venueName as string,
+          country: country as string,
+          state_province: state_province as string,
+          city: city as string,
+          address: address as string,
+          zipcode: zipcode as string,
+          registeredBy: {
+            connect: {
+              id: hostId,
+            },
+          },
+        },
+      });
+      if (!eventVenue) {
+        throw new Error("Failed to save event place.");
       }
 
-      let eventPlannerId = null;
-      //if new planner information exists, create planner
-      if (plannerEmail && !plannerId) {
-        const newPlanner = await ctx.prisma.planner.create({
-          data: {
-            name: plannerName as string,
-            email: plannerEmail,
-            client: {
-              connect: {
-                id: hostId,
-              },
+      const eventPlanner = await ctx.prisma.planner.upsert({
+        where: {
+          email: plannerEmail ?? "",
+        },
+        create: {
+          name: plannerName as string,
+          email: plannerEmail as string,
+          client: {
+            connect: {
+              id: hostId,
             },
           },
-        });
-        if (!newPlanner) {
-          throw new Error("Failed to create new event.");
-        }
-        eventPlannerId = newPlanner.id;
-      } else if (plannerId) {
-        //planner is already exists in DB
-        eventPlannerId = plannerId;
+        },
+        update: {
+          client: {
+            connect: {
+              id: hostId,
+            },
+          },
+          updatedAt: new Date(),
+        },
+      });
+
+      if (!eventPlanner) {
+        throw new Error("Failed to save planner.");
       }
 
       const event = await ctx.prisma.event.upsert({
@@ -169,17 +212,17 @@ export const eventRouter = createTRPCRouter({
               id: hostId,
             },
           },
-          ...(eventVenueId && {
+          ...(eventVenue.id && {
             venue: {
               connect: {
-                id: eventVenueId,
+                id: eventVenue.id,
               },
             },
           }),
-          ...(eventPlannerId && {
+          ...(eventPlanner.id && {
             planner: {
               connect: {
-                id: eventPlannerId,
+                id: eventPlanner.id,
               },
             },
           }),
@@ -193,17 +236,17 @@ export const eventRouter = createTRPCRouter({
               id: hostId,
             },
           },
-          ...(eventVenueId && {
+          ...(eventVenue.id && {
             venue: {
               connect: {
-                id: eventVenueId,
+                id: eventVenue.id,
               },
             },
           }),
-          ...(eventPlannerId && {
+          ...(eventPlanner.id && {
             planner: {
               connect: {
-                id: eventPlannerId,
+                id: eventPlanner.id,
               },
             },
           }),

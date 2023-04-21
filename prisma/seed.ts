@@ -3,6 +3,7 @@ import Chance from "chance";
 
 import { prisma } from "~/server/db";
 import { generateJWT } from "~/utils/server";
+import { cardClassy, cardElegant, cardSimple } from "./helper";
 
 const chance = new Chance();
 
@@ -84,7 +85,23 @@ const seed = async () => {
   }
   console.info(`Created ${totalPlanner} planner.`);
 
-  //TODO: Create card templates
+  //Create invitation card templates
+  console.log("Creating invitation card...");
+  const elegant = await prisma.cardTemplate.create({
+    data: cardElegant,
+  });
+  console.log(`Created card ${elegant.name}`);
+
+  const simple = await prisma.cardTemplate.create({
+    data: cardSimple,
+  });
+  console.log(`Created card ${simple.name}`);
+
+  const classy = await prisma.cardTemplate.create({
+    data: cardClassy,
+  });
+  console.log(`Created card ${classy.name}`);
+
   //TODO: Create email templates
 };
 

@@ -29,6 +29,10 @@ const EventForm = () => {
   //   return;
   // }
 
+  // if(status === "unauthenticated"){
+  //   return;
+  // }
+
   const { register, handleSubmit, setValue } = useForm<EventInputProp>();
   const router = useRouter();
   const { id: eventId } = router.query;
@@ -56,7 +60,6 @@ const EventForm = () => {
   });
 
   const [venueId, setVenueId] = useState<string>();
-  const [plannerId, setPlannerId] = useState<string>();
   const [venueFromList, setVenueFromList] = useState<boolean>(false);
 
   const venueOnChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -83,7 +86,6 @@ const EventForm = () => {
     const plannerDataFromDB = eventPlanners?.find(
       (planner) => planner.id === value
     );
-    setPlannerId(plannerDataFromDB?.id ?? "");
     setValue("plannerName", plannerDataFromDB?.name ?? "");
     setValue("plannerEmail", plannerDataFromDB?.email ?? "");
     setPlannerFromList(true);
@@ -105,14 +107,11 @@ const EventForm = () => {
       eventDate: moment(eventDate).toDate(),
       venueId,
       venueName,
-      plannerId,
       plannerName,
       plannerEmail,
       ...rest,
     });
   };
-
-  console.log(eventData);
 
   useEffect(() => {
     if (eventData && !error) {
@@ -238,7 +237,7 @@ const EventForm = () => {
             ))}
         </select>
         <Input
-          type="text"
+          type="email"
           name="plannerEmail"
           label="Email"
           list="eventPlanner"

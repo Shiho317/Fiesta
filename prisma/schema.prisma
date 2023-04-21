@@ -120,13 +120,14 @@ model Invitation {
     email String
     name String
     token String
-    accepted Boolean @default(false)
+    attend Boolean @default(false)
     expiresAt      DateTime
-    acceptedAt     DateTime?
+    respondedAt     DateTime?
     eventId String
     event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
     invitedById String
     invitedBy User @relation(fields: [invitedById], references: [id], onDelete: Cascade)
+    sendAt DateTime
     createdAt      DateTime?    @default(now())
     updatedAt      DateTime?    @updatedAt
 }
@@ -143,8 +144,6 @@ model EmailTemplate {
     html String
     text String
     name String
-    updatedAt DateTime? @updatedAt
-    createdAt DateTime? @default(now())
 }
 
 enum EventStatus {

@@ -3,10 +3,10 @@ import Link from "next/link";
 import React from "react";
 import {
   CalendarIcon,
-  UserCircleIcon,
   UserGroupIcon,
   MapPinIcon,
   StopIcon,
+  EnvelopeIcon,
 } from "@heroicons/react/24/outline";
 
 const SideBar = () => {
@@ -36,9 +36,9 @@ const SideBar = () => {
       logo: MapPinIcon,
     },
     {
-      name: "PROFILE",
-      path: "",
-      logo: UserCircleIcon,
+      name: "INVITATIONS",
+      path: "/admin/invitations",
+      logo: EnvelopeIcon,
     },
   ];
 
