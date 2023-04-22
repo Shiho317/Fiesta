@@ -1,21 +1,20 @@
 import { useRouter } from "next/router";
-import React, { useCallback, useState } from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { useSession } from "next-auth/react";
 import Mustache from "mustache";
 import parse from "html-react-parser";
+import moment from "moment";
 
 import Input from "../common/base/Input";
 import Button from "../common/base/Button";
 import { api } from "~/utils/api";
-import moment from "moment";
 
 type InvitationInputProp = {
   name: string;
   email: string;
   expiresAt: Date;
-  templateType: string;
   sendAt: Date;
 };
 
@@ -71,12 +70,11 @@ const InvitationForm = () => {
 
   const [cardSample, setCardSample] = useState<string>(initialSample);
 
-  // const changeSampleCard = useCallback(() => {
-
-  // },[])
+  const [template, setTemplate] = useState<string>("");
 
   const templateChangeHandler = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const templateId = e.target.value;
+    setTemplate(templateId);
     const template = invitationTemplates?.find(
       (template) => template.id === templateId
     );
@@ -85,15 +83,19 @@ const InvitationForm = () => {
   };
 
   const submitHandler = (data: InvitationInputProp) => {
-    const { name, email, expiresAt, templateType, sendAt } = data;
+    const { name, email, expiresAt, sendAt } = data;
     createInvitation({
       name,
       email,
-      expiresAt,
-      templateType,
+      expiresAt: moment(expiresAt).toDate(),
+      templateId: template,
       eventId: eventId as string,
       invitedById: session?.user.id as string,
-      sendAt,
+      sendAt: moment(sendAt).toDate(),
+      user: {
+        name: session?.user.name as string,
+        email: session?.user.email as string,
+      },
     });
   };
 
@@ -131,13 +133,14 @@ const InvitationForm = () => {
             Email Template
           </label>
           <select
-            name="templateType"
+            name="templateId"
             className="w-full p-3 text-center text-black outline-none"
             required
-            {...register}
             onChange={templateChangeHandler}
           >
-            <option disabled>Choose template</option>
+            <option selected disabled>
+              Choose template
+            </option>
             {invitationTemplates &&
               invitationTemplates.map((template) => (
                 <option key={template.id} value={template.id}>
@@ -150,7 +153,6 @@ const InvitationForm = () => {
           type="datetime-local"
           name="sendAt"
           label="Send Invitation At (Optional)"
-          required={true}
           register={register}
         />
         <div className="mt-4 flex justify-between">

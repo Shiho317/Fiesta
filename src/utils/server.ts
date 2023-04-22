@@ -21,3 +21,15 @@ export const verifyAndDecodeJWT = (token: string) => {
     throw new Error("This token is not valid.");
   }
 };
+
+export const getBaseUrl = () => {
+  //SSR should not have window object
+  //checking if window have object
+  if (typeof window !== "undefined") return "";
+
+  //user is on the server
+  if (process.env.FIESTA_URL) {
+    return process.env.FIESTA_URL;
+  }
+  return process.env.NEXTAUTH_URL;
+};

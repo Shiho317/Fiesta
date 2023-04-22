@@ -68,9 +68,9 @@ const InvitationTable = (props: InvitationTableProp) => {
         name: invitations[i]?.name as string,
         email: invitations[i]?.email as string,
         status: attendStatus,
-        responseDate: moment(invitations[i]?.respondedAt).format(
-          "MMM Do YYYY, h:mm a"
-        ),
+        responseDate: invitations[i]?.respondedAt
+          ? moment(invitations[i]?.respondedAt).format("MMM Do YYYY, h:mm a")
+          : "",
       });
     }
     return items;

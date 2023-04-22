@@ -36,8 +36,12 @@ export const InvitationSchema = z.object({
   name: z.string(),
   email: z.string(),
   expiresAt: z.date(),
-  templateType: z.string(),
+  templateId: z.string(),
   eventId: z.string(),
   invitedById: z.string(),
+  user: z.object({
+    name: z.string(),
+    email: z.string(),
+  }),
   sendAt: z.date().optional().nullable(),
 });

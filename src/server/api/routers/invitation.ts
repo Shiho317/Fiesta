@@ -1,9 +1,11 @@
 import { z } from "zod";
 import moment from "moment";
+import Mustache from "mustache";
+import axios from "axios";
 
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { InvitationSchema } from "~/utils/schema";
-import { generateJWT } from "~/utils/server";
+import { generateJWT, getBaseUrl } from "~/utils/server";
 
 export const invitationRouter = createTRPCRouter({
   getAllInvitationByEvent: protectedProcedure
@@ -29,10 +31,11 @@ export const invitationRouter = createTRPCRouter({
         name,
         email,
         expiresAt,
-        templateType,
+        templateId,
         eventId,
         invitedById,
         sendAt,
+        user,
       } = input;
 
       const invitationExists = await ctx.prisma.invitation.findFirst({
@@ -46,13 +49,36 @@ export const invitationRouter = createTRPCRouter({
       });
 
       if (invitationExists) {
-        throw new Error("You already sent invitation to this email.");
+        throw new Error("You already sent valid invitation to this email.");
       }
 
       const expiredDate = moment(expiresAt);
       const currentDate = moment(new Date());
 
       const expiresIn = expiredDate.diff(currentDate, "days");
+
+      const cardTemplate = await ctx.prisma.cardTemplate.findUnique({
+        where: {
+          id: templateId,
+        },
+      });
+
+      if (!cardTemplate) {
+        throw new Error("Oops.Something went wrong...");
+      }
+
+      const eventInfo = await ctx.prisma.event.findUnique({
+        where: {
+          id: eventId,
+        },
+        include: {
+          venue: true,
+        },
+      });
+
+      if (!eventInfo) {
+        throw new Error("Oops.Something went wrong...");
+      }
 
       const data = {
         email,
@@ -66,7 +92,32 @@ export const invitationRouter = createTRPCRouter({
 
       const token = generateJWT(data, option);
 
-      return ctx.prisma.invitation.create({
+      const splitDateAndTIme = moment(eventInfo?.eventDate)
+        .format("MMM Do YYYY, h:mm a")
+        .split(", ");
+
+      const baseUrl = getBaseUrl() as string;
+
+      const view = {
+        eventName: eventInfo?.name,
+        eventDate: splitDateAndTIme[0],
+        eventTime: splitDateAndTIme[1],
+        eventVenue: eventInfo.venue?.address,
+        attend: `${baseUrl}/invitation/attend/${token}`,
+        decline: `${baseUrl}/invitation/decline/${token}`,
+        user: user.name,
+      };
+
+      const emailData = {
+        to: email,
+        from: user.email,
+        subject: `[Invitation]: ${eventInfo.name}`,
+        text: cardTemplate.text,
+        html: Mustache.render(cardTemplate.html, view),
+        sendAt: sendAt ? moment(sendAt).toDate() : new Date(),
+      };
+
+      const invitation = await ctx.prisma.invitation.create({
         data: {
           name,
           email,
@@ -77,33 +128,19 @@ export const invitationRouter = createTRPCRouter({
           sendAt: sendAt ? moment(sendAt).toDate() : new Date(),
         },
       });
-      //TODO: Send invitation email
-    }),
-  // upsertInvitation: protectedProcedure
-  //   .input(InvitationSchema.merge(z.object({
-  //       invitationId: z.string().optional(),
-  //     }))
 
-  //   )
-  //   .mutation(async ({ ctx, input }) => {
-  //     const invitation = await ctx.prisma.invitation.upsert({
-  //       where: {
-  //         id: input.invitationId ?? "",
-  //       },
-  //       create: {
-  //         name: input.name,
-  //         email: input.email,
-  //         expiresAt: moment(input.expiresAt).toDate(),
-  //         token: "",
-  //         eventId: "",
-  //         invitedById: "",
-  //       },
-  //       update: {
-  //         name: input.name,
-  //         email: input.email,
-  //         expiresAt: moment(input.expiresAt).toDate(),
-  //         updatedAt: new Date(),
-  //       },
-  //     });
-  //   }),
+      if (!invitation) {
+        throw new Error("Failed to create invitation.");
+      }
+      //Send invitation email
+      const res = await axios.post(
+        process.env.AWS_ENDPOINT as string,
+        emailData
+      );
+      if (res.status === 200) {
+        console.log("Invitation has been sent.");
+      } else {
+        console.log("Failed to sent invitation.");
+      }
+    }),
 });
