@@ -1,4 +1,7 @@
 import { z } from "zod";
+import Mustache from "mustache";
+import axios from "axios";
+import moment from "moment";
 
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { EventSchema } from "~/utils/schema";
@@ -12,6 +15,7 @@ export const eventRouter = createTRPCRouter({
           id: input.id,
         },
         include: {
+          guests: true,
           venue: true,
           planner: true,
         },
@@ -258,6 +262,74 @@ export const eventRouter = createTRPCRouter({
       }
 
       return event;
+    }),
+  cancelEvent: protectedProcedure
+    .input(
+      z.object({
+        eventId: z.string(),
+        eventName: z.string(),
+        eventDate: z.date(),
+        email: z.string(),
+        name: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const cancelled = await ctx.prisma.event.update({
+        where: {
+          id: input.eventId,
+        },
+        data: {
+          status: "CANCELED",
+          canceled: true,
+          updatedAt: new Date(),
+        },
+        include: {
+          guests: true,
+        },
+      });
+
+      if (!cancelled) {
+        throw new Error("Failed to cancel event.");
+      }
+
+      const cancelTemplate = await ctx.prisma.emailTemplate.findFirst({
+        where: {
+          name: "cancel",
+        },
+      });
+
+      if (!cancelTemplate) {
+        throw new Error("Oops. Something went wrong...");
+      }
+
+      const view = {
+        eventName: input.eventName,
+        eventDate: moment(input.eventDate).format("MMM Do YYYY"),
+        email: input.email,
+        user: input.name,
+      };
+
+      //send bulk email
+      for (const guest of cancelled.guests) {
+        const emailData = {
+          to: guest.email,
+          from: input.email,
+          subject: `[Cancelled]: ${input.eventName}`,
+          text: cancelTemplate.text,
+          html: Mustache.render(cancelTemplate.html, view),
+          sendAt: new Date(),
+        };
+        //Send cancel email
+        const res = await axios.post(
+          process.env.AWS_ENDPOINT as string,
+          emailData
+        );
+        if (res.status === 200) {
+          console.log("Cancel email has been sent.");
+        } else {
+          console.log("Failed to sent cancel email.");
+        }
+      }
     }),
   deleteEvent: protectedProcedure
     .input(z.object({ eventId: z.string() }))

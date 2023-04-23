@@ -50,7 +50,7 @@ const InvitationBoard = (props: EventProp) => {
     <div className="relative z-10 mt-4 rounded-lg border border-gray-200 bg-fiesta-100/30 p-4 shadow-md shadow-gray-300/30 backdrop-blur-md backdrop-filter hover:shadow-lg">
       <h3 className="font-regular text-lg">{event.name}</h3>
       <p
-        className={`w-fit rounded-xl px-2 py-1 text-xs text-white ${
+        className={`my-2 w-fit rounded-xl px-2 py-1 text-xs text-white ${
           eventStatus === "green"
             ? "bg-green-200"
             : eventStatus === "red"
@@ -60,11 +60,11 @@ const InvitationBoard = (props: EventProp) => {
       >
         {event.status}
       </p>
-      <p className="text-sm text-gray-400">{event.venue?.name ?? "aaa"}</p>
-      <p className="text-sm text-gray-400">
+      <p className="my-1 text-sm text-gray-400">{event.venue?.name ?? ""}</p>
+      <p className="my-1 text-sm text-gray-400">
         {moment(event.eventDate).format("MMM Do YYYY, h:mm a").toString()}
       </p>
-      <p className="text-sm text-gray-400">
+      <p className="my-1 text-sm text-gray-400">
         Invited Guests: {event.guests.length}
       </p>
       <Link

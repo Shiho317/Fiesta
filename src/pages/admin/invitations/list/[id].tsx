@@ -15,6 +15,10 @@ const InvitationList: NextPageWithLayout = () => {
   const router = useRouter();
   const { id: eventId } = router.query;
 
+  const { data: eventData } = api.event.getById.useQuery({
+    id: eventId as string,
+  });
+
   const { data: invitations } = api.invitation.getAllInvitationByEvent.useQuery(
     {
       eventId: eventId as string,
@@ -29,12 +33,14 @@ const InvitationList: NextPageWithLayout = () => {
       ) : (
         <Empty content="No one is invited." />
       )}
-      <Link
-        href={`/admin/invitations/new/${eventId as string}`}
-        className="has-tooltip absolute bottom-10 right-10 bg-transparent text-fiesta-300 drop-shadow-lg hover:text-gray-300"
-      >
-        <PlusCircleIcon className="h-16 w-16" />
-      </Link>
+      {eventData && !eventData?.canceled && (
+        <Link
+          href={`/admin/invitations/new/${eventId as string}`}
+          className="has-tooltip absolute bottom-10 right-10 bg-transparent text-fiesta-300 drop-shadow-lg hover:text-gray-300"
+        >
+          <PlusCircleIcon className="h-16 w-16" />
+        </Link>
+      )}
     </Main>
   );
 };
