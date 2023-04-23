@@ -18,7 +18,9 @@ export const verifyAndDecodeJWT = (token: string) => {
     const decoded = jwt.verify(token, JWT_SECRET_KEY);
     return decoded;
   } catch (error) {
-    throw new Error("This token is not valid.");
+    throw new Error(
+      "Sorry, This invitation is expired. Please contact to host."
+    );
   }
 };
 

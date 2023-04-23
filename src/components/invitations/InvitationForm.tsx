@@ -10,6 +10,7 @@ import moment from "moment";
 import Input from "../common/base/Input";
 import Button from "../common/base/Button";
 import { api } from "~/utils/api";
+import LoadingQuery from "../common/base/LoadingQuery";
 
 type InvitationInputProp = {
   name: string;
@@ -19,22 +20,14 @@ type InvitationInputProp = {
 };
 
 const InvitationForm = () => {
-  const { data: session, status } = useSession();
-
-  // if(status === "loading"){
-  //   return;
-  // }
-
-  // if(status === "unauthenticated"){
-  //   return;
-  // }
+  const { data: session } = useSession();
 
   const { register, handleSubmit } = useForm<InvitationInputProp>();
 
   const router = useRouter();
   const { id: eventId } = router.query;
 
-  const { mutate: createInvitation } =
+  const { mutate: createInvitation, isLoading } =
     api.invitation.createInvitation.useMutation({
       onSuccess: () => {
         toast.success("Sent invitation successfully.📮");
@@ -48,6 +41,8 @@ const InvitationForm = () => {
   const { data: event } = api.event.getById.useQuery({
     id: eventId as string,
   });
+
+  console.log(event);
 
   const { data: invitationTemplates } =
     api.cardTemplate.getAllTemplates.useQuery();
@@ -100,77 +95,79 @@ const InvitationForm = () => {
   };
 
   return (
-    <div className="relative z-10 mt-4 flex gap-8 rounded-lg border border-gray-200 bg-fiesta-100/30 p-4 shadow-md shadow-gray-300/30 backdrop-blur-md backdrop-filter">
-      <form
-        className="grid flex-1 gap-2"
-        onSubmit={handleSubmit(submitHandler)}
-      >
-        <Input
-          type="text"
-          name="name"
-          label="Guest Name"
-          placeholder="Guest Fiesta"
-          required={true}
-          register={register}
-        />
-        <Input
-          type="email"
-          name="email"
-          label="Guest Email"
-          placeholder="guest@fiesta.com"
-          required={true}
-          register={register}
-        />
-        <Input
-          type="datetime-local"
-          name="expiresAt"
-          label="Response By"
-          required={true}
-          register={register}
-        />
-        <div>
-          <label htmlFor="templateType" className="block">
-            Email Template
-          </label>
-          <select
-            name="templateId"
-            className="w-full p-3 text-center text-black outline-none"
-            required
-            onChange={templateChangeHandler}
-          >
-            <option selected disabled>
-              Choose template
-            </option>
-            {invitationTemplates &&
-              invitationTemplates.map((template) => (
-                <option key={template.id} value={template.id}>
-                  {template.name}
-                </option>
-              ))}
-          </select>
-        </div>
-        <Input
-          type="datetime-local"
-          name="sendAt"
-          label="Send Invitation At (Optional)"
-          register={register}
-        />
-        <div className="mt-4 flex justify-between">
-          <Button
-            type="button"
-            content="Back"
-            className="rounded-md bg-gray-300 px-8 hover:bg-gray-200"
-            onClick={() =>
-              void router.push(`/admin/invitations/list/${eventId as string}`)
-            }
+    <LoadingQuery isLoading={isLoading} label="Sending invitation...">
+      <div className="relative z-10 mt-4 flex gap-8 rounded-lg border border-gray-200 bg-fiesta-100/30 p-4 shadow-md shadow-gray-300/30 backdrop-blur-md backdrop-filter">
+        <form
+          className="grid flex-1 gap-2"
+          onSubmit={handleSubmit(submitHandler)}
+        >
+          <Input
+            type="text"
+            name="name"
+            label="Guest Name"
+            placeholder="Guest Fiesta"
+            required={true}
+            register={register}
           />
-          <Button type="submit" content="Save" className="rounded-md px-8" />
+          <Input
+            type="email"
+            name="email"
+            label="Guest Email"
+            placeholder="guest@fiesta.com"
+            required={true}
+            register={register}
+          />
+          <Input
+            type="datetime-local"
+            name="expiresAt"
+            label="Response By"
+            required={true}
+            register={register}
+          />
+          <div>
+            <label htmlFor="templateType" className="block">
+              Email Template
+            </label>
+            <select
+              name="templateId"
+              className="w-full p-3 text-center text-black outline-none"
+              required
+              onChange={templateChangeHandler}
+            >
+              <option selected disabled>
+                Choose template
+              </option>
+              {invitationTemplates &&
+                invitationTemplates.map((template) => (
+                  <option key={template.id} value={template.id}>
+                    {template.name}
+                  </option>
+                ))}
+            </select>
+          </div>
+          <Input
+            type="datetime-local"
+            name="sendAt"
+            label="Send Invitation At (Optional)"
+            register={register}
+          />
+          <div className="mt-4 flex justify-between">
+            <Button
+              type="button"
+              content="Back"
+              className="rounded-md bg-gray-300 px-8 hover:bg-gray-200"
+              onClick={() =>
+                void router.push(`/admin/invitations/list/${eventId as string}`)
+              }
+            />
+            <Button type="submit" content="Save" className="rounded-md px-8" />
+          </div>
+        </form>
+        <div className="pointer-events-none flex flex-1 items-center justify-center bg-white">
+          {parse(cardSample)}
         </div>
-      </form>
-      <div className="pointer-events-none flex flex-1 items-center justify-center bg-white">
-        {parse(cardSample)}
       </div>
-    </div>
+    </LoadingQuery>
   );
 };
 

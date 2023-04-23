@@ -3,9 +3,16 @@ import moment from "moment";
 import Mustache from "mustache";
 import axios from "axios";
 
-import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { InvitationSchema } from "~/utils/schema";
-import { generateJWT, getBaseUrl } from "~/utils/server";
+import { generateJWT, getBaseUrl, verifyAndDecodeJWT } from "~/utils/server";
+
+type TokenResponseProp = {
+  name: string;
+  email: string;
+  eventId: string;
+  invitedById: string;
+};
 
 export const invitationRouter = createTRPCRouter({
   getAllInvitationByEvent: protectedProcedure
@@ -81,6 +88,7 @@ export const invitationRouter = createTRPCRouter({
       }
 
       const data = {
+        name,
         email,
         eventId,
         invitedById,
@@ -142,5 +150,51 @@ export const invitationRouter = createTRPCRouter({
       } else {
         console.log("Failed to sent invitation.");
       }
+    }),
+  responseInvitation: publicProcedure
+    .input(z.object({ token: z.string(), attend: z.boolean() }))
+    .mutation(async ({ ctx, input }) => {
+      //check token
+      const tokenResult = verifyAndDecodeJWT(input.token) as TokenResponseProp;
+
+      //search invitation
+      const invitation = await ctx.prisma.invitation.findFirst({
+        where: {
+          token: input.token,
+          email: tokenResult.email,
+          name: tokenResult.name,
+          invitedById: tokenResult.invitedById,
+          eventId: tokenResult.eventId,
+        },
+      });
+
+      //check invitation is valid and update
+      const updateInvitation = await ctx.prisma.invitation.update({
+        where: {
+          id: invitation?.id,
+        },
+        data: {
+          attend: input.attend,
+          respondedAt: new Date(),
+          updatedAt: new Date(),
+          expiresAt: new Date(),
+        },
+      });
+
+      if (!updateInvitation) {
+        throw new Error("Failed to update your invitation response.");
+      }
+
+      //add guest to event
+      return ctx.prisma.guest.create({
+        data: {
+          name: updateInvitation.name,
+          email: updateInvitation.email,
+          eventId: updateInvitation.eventId,
+        },
+        select: {
+          name: true,
+        },
+      });
     }),
 });

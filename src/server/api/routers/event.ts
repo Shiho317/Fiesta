@@ -141,67 +141,77 @@ export const eventRouter = createTRPCRouter({
         eventId,
       } = input;
 
+      let venue = "";
+
       //create venue of update
-      const eventVenue = await ctx.prisma.venue.upsert({
-        where: {
-          id: venueId ?? "",
-        },
-        create: {
-          name: venueName as string,
-          country: country as string,
-          state_province: state_province as string,
-          city: city as string,
-          address: address as string,
-          zipcode: zipcode as string,
-          registeredBy: {
-            connect: {
-              id: hostId,
+      if (venueName) {
+        const eventVenue = await ctx.prisma.venue.upsert({
+          where: {
+            id: venueId ?? "",
+          },
+          create: {
+            name: venueName,
+            country: country as string,
+            state_province: state_province as string,
+            city: city as string,
+            address: address as string,
+            zipcode: zipcode as string,
+            registeredBy: {
+              connect: {
+                id: hostId,
+              },
             },
           },
-        },
-        update: {
-          name: venueName as string,
-          country: country as string,
-          state_province: state_province as string,
-          city: city as string,
-          address: address as string,
-          zipcode: zipcode as string,
-          registeredBy: {
-            connect: {
-              id: hostId,
+          update: {
+            name: venueName,
+            country: country as string,
+            state_province: state_province as string,
+            city: city as string,
+            address: address as string,
+            zipcode: zipcode as string,
+            registeredBy: {
+              connect: {
+                id: hostId,
+              },
             },
           },
-        },
-      });
-      if (!eventVenue) {
-        throw new Error("Failed to save event place.");
+        });
+        if (!eventVenue) {
+          throw new Error("Failed to save event place.");
+        }
+        venue = eventVenue.id;
       }
 
-      const eventPlanner = await ctx.prisma.planner.upsert({
-        where: {
-          email: plannerEmail ?? "",
-        },
-        create: {
-          name: plannerName as string,
-          email: plannerEmail as string,
-          client: {
-            connect: {
-              id: hostId,
-            },
-          },
-        },
-        update: {
-          client: {
-            connect: {
-              id: hostId,
-            },
-          },
-          updatedAt: new Date(),
-        },
-      });
+      let planner = "";
 
-      if (!eventPlanner) {
-        throw new Error("Failed to save planner.");
+      if (plannerEmail) {
+        const eventPlanner = await ctx.prisma.planner.upsert({
+          where: {
+            email: plannerEmail ?? "",
+          },
+          create: {
+            name: plannerName as string,
+            email: plannerEmail,
+            client: {
+              connect: {
+                id: hostId,
+              },
+            },
+          },
+          update: {
+            client: {
+              connect: {
+                id: hostId,
+              },
+            },
+            updatedAt: new Date(),
+          },
+        });
+
+        if (!eventPlanner) {
+          throw new Error("Failed to save planner.");
+        }
+        planner = eventPlanner.id;
       }
 
       const event = await ctx.prisma.event.upsert({
@@ -216,17 +226,17 @@ export const eventRouter = createTRPCRouter({
               id: hostId,
             },
           },
-          ...(eventVenue.id && {
+          ...(venue && {
             venue: {
               connect: {
-                id: eventVenue.id,
+                id: venue,
               },
             },
           }),
-          ...(eventPlanner.id && {
+          ...(planner && {
             planner: {
               connect: {
-                id: eventPlanner.id,
+                id: planner,
               },
             },
           }),
@@ -240,17 +250,17 @@ export const eventRouter = createTRPCRouter({
               id: hostId,
             },
           },
-          ...(eventVenue.id && {
+          ...(venue && {
             venue: {
               connect: {
-                id: eventVenue.id,
+                id: venue,
               },
             },
           }),
-          ...(eventPlanner.id && {
+          ...(planner && {
             planner: {
               connect: {
-                id: eventPlanner.id,
+                id: planner,
               },
             },
           }),

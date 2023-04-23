@@ -1,10 +1,11 @@
 import { getServerSession } from "next-auth";
 import EmailProvider from "next-auth/providers/email";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { createTransport } from "nodemailer";
+import Mustache from "mustache";
 
 import { env } from "~/env.mjs";
 import { prisma } from "~/server/db";
+import { sendEmail } from "~/integrations/mailer/server";
 
 import { type NextAuthOptions, type DefaultSession } from "next-auth";
 import { type GetServerSidePropsContext } from "next";
@@ -85,25 +86,34 @@ export const authOptions: NextAuthOptions = {
             `Email ${email} does not have any account. Please sign up before login.`
           );
         }
-        const { host } = new URL(url);
-        const transport = createTransport(this.server);
-        const result = await transport.sendMail({
+
+        //add email template and connect with mailer/server.ts
+        const template = await prisma.emailTemplate.findFirst({
+          where: {
+            name: "login",
+          },
+        });
+
+        if (!template) {
+          throw new Error("Oops, Something went wrong...");
+        }
+
+        const view = {
+          url,
+        };
+
+        const mailOption = {
           to: email,
           from: from as string,
           subject: "Login to Fiesta",
-          text: `Fiesta sign in to ${host}`,
-          html: `Sign in to ${host} \n\n ${url}`,
-        });
-        if (!result.accepted || result.accepted.length === 0) {
+          html: Mustache.render(template.html, view),
+          text: Mustache.render(template.text, view),
+        };
+
+        const res = await sendEmail(mailOption, this.server as string);
+        if (!res.accepted || res.accepted.length === 0) {
           throw new Error("Failed to send email.");
         }
-        //TODO: add email template and connect with mailer/server.ts
-        // const mailOption = {
-        //   to: email,
-        //   from,
-        //   subject: "Login to Fiesta",
-        //   text:
-        // }
       },
     }),
     // CredentialsProvider({

@@ -24,15 +24,7 @@ type EventInputProp = {
 };
 
 const EventForm = () => {
-  const { data: session, status } = useSession();
-
-  // if(status === "loading"){
-  //   return;
-  // }
-
-  // if(status === "unauthenticated"){
-  //   return;
-  // }
+  const { data: session } = useSession();
 
   const { register, handleSubmit, setValue } = useForm<EventInputProp>();
   const router = useRouter();
@@ -89,12 +81,10 @@ const EventForm = () => {
   };
 
   const openWarningModal = () => {
-    console.log("open");
     setOpenModal(true);
   };
 
   const closeWarningModal = () => {
-    console.log("close");
     setOpenModal(false);
   };
 
@@ -149,6 +139,7 @@ const EventForm = () => {
   const onSubmit = (data: EventInputProp) => {
     const { name, eventDate, venueName, plannerEmail, plannerName, ...rest } =
       data;
+
     upsertEvent({
       eventId: eventId as string,
       hostId: session?.user.id as string,
