@@ -11,11 +11,7 @@ import LoadingQuery from "~/components/common/base/LoadingQuery";
 import { type NextPageWithLayout } from "~/types";
 
 const InvitationPage: NextPageWithLayout = () => {
-  const { data: session, status } = useSession();
-
-  if (status === "loading") {
-    return <h1>Loading</h1>;
-  }
+  const { data: session } = useSession();
 
   const { data: eventData, isLoading } =
     api.event.getAllEventsByUserId.useQuery({

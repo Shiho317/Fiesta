@@ -8,11 +8,14 @@ import {
   StopIcon,
   EnvelopeIcon,
 } from "@heroicons/react/24/outline";
+import { useRouter } from "next/router";
 
 const SideBar = () => {
   const { data: userInfo } = useSession();
   const userName = userInfo?.user.name;
   const firstName = userName?.split(" ")[0];
+  const router = useRouter();
+  const currentPage = router.route;
 
   const sidebarList = [
     {
@@ -26,13 +29,13 @@ const SideBar = () => {
       logo: CalendarIcon,
     },
     {
-      name: "FRIENDS",
-      path: "",
+      name: "PLANNERS",
+      path: "/admin/planners",
       logo: UserGroupIcon,
     },
     {
       name: "PLACES",
-      path: "",
+      path: "/admin/places",
       logo: MapPinIcon,
     },
     {
@@ -56,7 +59,11 @@ const SideBar = () => {
             <li className="list-none" key={`${content.name}-${index}`}>
               <Link
                 href={content.path}
-                className="flex flex-col items-center gap-2 text-sm font-medium text-gray-400 hover:text-fiesta-400"
+                className={`flex flex-col items-center gap-2 text-sm font-medium ${
+                  currentPage === content.path
+                    ? "text-fiesta-400"
+                    : "text-gray-400"
+                }  hover:text-fiesta-400`}
               >
                 <content.logo className="h-5 w-5" />
                 {content.name}
