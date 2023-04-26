@@ -10,44 +10,50 @@ import { api } from "~/utils/api";
 import EventTable from "~/components/events/EventTable";
 
 import { type NextPageWithLayout } from "~/types";
+import LoadingQuery from "~/components/common/base/LoadingQuery";
 
-const EventBoard: NextPageWithLayout = () => {
-  const { data: session, status } = useSession();
-
-  if (status === "loading") {
-    return <h1>Loading</h1>;
-  }
+const EventPage: NextPageWithLayout = () => {
+  const { data: session } = useSession();
 
   const { data: comingEvents } = api.event.getComingEventByUserId.useQuery({
     userId: session?.user.id as string,
   });
-  const { data: pastEvents } = api.event.getPastEventByUserId.useQuery({
-    userId: session?.user.id as string,
-  });
+  const { data: pastEvents, isLoading } =
+    api.event.getPastEventByUserId.useQuery({
+      userId: session?.user.id as string,
+    });
 
   return (
-    <Main className="grid grid-rows-2 gap-2 p-8">
-      {comingEvents && comingEvents.length > 0 ? (
-        <EventTable events={comingEvents} />
-      ) : (
-        <Empty title="Coming Up" content="No Coming Up Events" />
-      )}
-      {pastEvents && pastEvents.length > 0 ? (
-        <EventTable events={pastEvents} />
-      ) : (
-        <Empty title="Memory" content="No Past Events" />
-      )}
-      <Link
-        href={"/admin/events/new"}
-        className="absolute bottom-10 right-10 bg-transparent text-fiesta-300 drop-shadow-lg hover:text-gray-300"
-      >
-        <PlusCircleIcon className="h-16 w-16" />
-      </Link>
-    </Main>
+    <LoadingQuery isLoading={isLoading}>
+      <Main className="grid grid-rows-2 gap-2 p-8">
+        <div>
+          <h1 className="text-3xl font-semibold text-gray-300">Coming Up</h1>
+          {comingEvents && comingEvents.length > 0 ? (
+            <EventTable events={comingEvents} />
+          ) : (
+            <Empty content="No Coming Up Events" />
+          )}
+        </div>
+        <div>
+          <h1 className="text-3xl font-semibold text-gray-300">Memory</h1>
+          {pastEvents && pastEvents.length > 0 ? (
+            <EventTable events={pastEvents} />
+          ) : (
+            <Empty content="No Past Events" />
+          )}
+        </div>
+        <Link
+          href={"/admin/events/new"}
+          className="absolute bottom-10 right-10 bg-transparent text-fiesta-300 drop-shadow-lg hover:text-gray-300"
+        >
+          <PlusCircleIcon className="h-16 w-16" />
+        </Link>
+      </Main>
+    </LoadingQuery>
   );
 };
 
-EventBoard.getLayout = (page) => {
+EventPage.getLayout = (page) => {
   return (
     <AuthenticatedLayout>
       <>{page}</>
@@ -55,4 +61,4 @@ EventBoard.getLayout = (page) => {
   );
 };
 
-export default EventBoard;
+export default EventPage;

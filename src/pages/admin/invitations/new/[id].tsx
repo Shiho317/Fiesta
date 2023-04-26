@@ -2,20 +2,20 @@ import React from "react";
 
 import AuthenticatedLayout from "~/components/common/AuthenticatedLayout";
 import Main from "~/components/common/base/Main";
-import EventForm from "~/components/events/EventForm";
+import InvitationForm from "~/components/invitations/InvitationForm";
 
 import { type NextPageWithLayout } from "~/types";
 
-const EditEvent: NextPageWithLayout = () => {
+const NewInvitation: NextPageWithLayout = () => {
   return (
     <Main className="p-8">
-      <h1 className="text-3xl font-semibold text-gray-300">Edit Event</h1>
-      <EventForm />
+      <h1 className="text-3xl font-semibold text-gray-300">New Invitation</h1>
+      <InvitationForm />
     </Main>
   );
 };
 
-EditEvent.getLayout = (page) => {
+NewInvitation.getLayout = (page) => {
   return (
     <AuthenticatedLayout>
       <>{page}</>
@@ -23,4 +23,4 @@ EditEvent.getLayout = (page) => {
   );
 };
 
-export default EditEvent;
+export default NewInvitation;

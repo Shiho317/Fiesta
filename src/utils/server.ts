@@ -18,6 +18,20 @@ export const verifyAndDecodeJWT = (token: string) => {
     const decoded = jwt.verify(token, JWT_SECRET_KEY);
     return decoded;
   } catch (error) {
-    throw new Error("This token is not valid.");
+    throw new Error(
+      "Sorry, This invitation is expired. Please contact to host."
+    );
   }
+};
+
+export const getBaseUrl = () => {
+  //SSR should not have window object
+  //checking if window have object
+  if (typeof window !== "undefined") return "";
+
+  //user is on the server
+  if (process.env.FIESTA_URL) {
+    return process.env.FIESTA_URL;
+  }
+  return process.env.NEXTAUTH_URL;
 };

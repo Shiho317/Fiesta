@@ -103,11 +103,12 @@ CREATE TABLE "Invitation" (
     "email" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "token" TEXT NOT NULL,
-    "accepted" BOOLEAN NOT NULL DEFAULT false,
+    "attend" BOOLEAN NOT NULL DEFAULT false,
     "expiresAt" TIMESTAMP(3) NOT NULL,
-    "acceptedAt" TIMESTAMP(3),
+    "respondedAt" TIMESTAMP(3),
     "eventId" TEXT NOT NULL,
     "invitedById" TEXT NOT NULL,
+    "sendAt" TIMESTAMP(3) NOT NULL,
     "createdAt" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3),
 
@@ -130,8 +131,6 @@ CREATE TABLE "EmailTemplate" (
     "html" TEXT NOT NULL,
     "text" TEXT NOT NULL,
     "name" TEXT NOT NULL,
-    "updatedAt" TIMESTAMP(3),
-    "createdAt" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "EmailTemplate_pkey" PRIMARY KEY ("id")
 );

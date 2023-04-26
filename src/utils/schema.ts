@@ -31,3 +31,17 @@ export const PlannerSchema = z.object({
   organization: z.string().optional().nullable(),
   userId: z.string(),
 });
+
+export const InvitationSchema = z.object({
+  name: z.string(),
+  email: z.string(),
+  expiresAt: z.date(),
+  templateId: z.string(),
+  eventId: z.string(),
+  invitedById: z.string(),
+  user: z.object({
+    name: z.string(),
+    email: z.string(),
+  }),
+  sendAt: z.date().optional().nullable(),
+});

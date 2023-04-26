@@ -1,7 +1,10 @@
 import { z } from "zod";
+import Mustache from "mustache";
+import axios from "axios";
+import moment from "moment";
 
 import { createTRPCRouter, protectedProcedure } from "../trpc";
-import { EventSchema, PlannerSchema, VenueSchema } from "~/utils/schema";
+import { EventSchema } from "~/utils/schema";
 
 export const eventRouter = createTRPCRouter({
   getById: protectedProcedure
@@ -12,8 +15,41 @@ export const eventRouter = createTRPCRouter({
           id: input.id,
         },
         include: {
+          guests: true,
           venue: true,
           planner: true,
+        },
+      });
+    }),
+  getAllEventsByUserId: protectedProcedure
+    .input(z.object({ userId: z.string() }))
+    .query(({ ctx, input }) => {
+      return ctx.prisma.event.findMany({
+        where: {
+          hostId: input.userId,
+          eventDate: {
+            gte: new Date(),
+          },
+        },
+        orderBy: {
+          eventDate: "asc",
+        },
+        select: {
+          id: true,
+          name: true,
+          status: true,
+          hostId: true,
+          eventDate: true,
+          guests: {
+            select: {
+              id: true,
+            },
+          },
+          venue: {
+            select: {
+              name: true,
+            },
+          },
         },
       });
     }),
@@ -83,7 +119,6 @@ export const eventRouter = createTRPCRouter({
           city: z.string().optional().nullable(),
           address: z.string().optional().nullable(),
           zipcode: z.string().optional().nullable(),
-          plannerId: z.string().optional(),
           plannerName: z.string().optional(),
           plannerEmail: z.string().optional(),
         })
@@ -94,7 +129,6 @@ export const eventRouter = createTRPCRouter({
         name,
         eventDate,
         venueName,
-        plannerId,
         plannerName,
         plannerEmail,
         hostId,
@@ -107,11 +141,28 @@ export const eventRouter = createTRPCRouter({
         eventId,
       } = input;
 
-      let eventVenueId = null;
-      //if new venue information exists, create venue
-      if (!venueId && venueName) {
-        const newVenue = await ctx.prisma.venue.create({
-          data: {
+      let venue = "";
+
+      //create venue of update
+      if (venueName) {
+        const eventVenue = await ctx.prisma.venue.upsert({
+          where: {
+            id: venueId ?? "",
+          },
+          create: {
+            name: venueName,
+            country: country as string,
+            state_province: state_province as string,
+            city: city as string,
+            address: address as string,
+            zipcode: zipcode as string,
+            registeredBy: {
+              connect: {
+                id: hostId,
+              },
+            },
+          },
+          update: {
             name: venueName,
             country: country as string,
             state_province: state_province as string,
@@ -125,20 +176,20 @@ export const eventRouter = createTRPCRouter({
             },
           },
         });
-        if (!newVenue) {
-          throw new Error("Failed to create new event.");
+        if (!eventVenue) {
+          throw new Error("Failed to save event place.");
         }
-        eventVenueId = newVenue.id;
-      } else if (venueId) {
-        //planner is already exists in DB
-        eventVenueId = venueId;
+        venue = eventVenue.id;
       }
 
-      let eventPlannerId = null;
-      //if new planner information exists, create planner
-      if (plannerEmail && !plannerId) {
-        const newPlanner = await ctx.prisma.planner.create({
-          data: {
+      let planner = "";
+
+      if (plannerEmail) {
+        const eventPlanner = await ctx.prisma.planner.upsert({
+          where: {
+            email: plannerEmail ?? "",
+          },
+          create: {
             name: plannerName as string,
             email: plannerEmail,
             client: {
@@ -147,14 +198,20 @@ export const eventRouter = createTRPCRouter({
               },
             },
           },
+          update: {
+            client: {
+              connect: {
+                id: hostId,
+              },
+            },
+            updatedAt: new Date(),
+          },
         });
-        if (!newPlanner) {
-          throw new Error("Failed to create new event.");
+
+        if (!eventPlanner) {
+          throw new Error("Failed to save planner.");
         }
-        eventPlannerId = newPlanner.id;
-      } else if (plannerId) {
-        //planner is already exists in DB
-        eventPlannerId = plannerId;
+        planner = eventPlanner.id;
       }
 
       const event = await ctx.prisma.event.upsert({
@@ -169,17 +226,17 @@ export const eventRouter = createTRPCRouter({
               id: hostId,
             },
           },
-          ...(eventVenueId && {
+          ...(venue && {
             venue: {
               connect: {
-                id: eventVenueId,
+                id: venue,
               },
             },
           }),
-          ...(eventPlannerId && {
+          ...(planner && {
             planner: {
               connect: {
-                id: eventPlannerId,
+                id: planner,
               },
             },
           }),
@@ -193,17 +250,17 @@ export const eventRouter = createTRPCRouter({
               id: hostId,
             },
           },
-          ...(eventVenueId && {
+          ...(venue && {
             venue: {
               connect: {
-                id: eventVenueId,
+                id: venue,
               },
             },
           }),
-          ...(eventPlannerId && {
+          ...(planner && {
             planner: {
               connect: {
-                id: eventPlannerId,
+                id: planner,
               },
             },
           }),
@@ -215,6 +272,74 @@ export const eventRouter = createTRPCRouter({
       }
 
       return event;
+    }),
+  cancelEvent: protectedProcedure
+    .input(
+      z.object({
+        eventId: z.string(),
+        eventName: z.string(),
+        eventDate: z.date(),
+        email: z.string(),
+        name: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const cancelled = await ctx.prisma.event.update({
+        where: {
+          id: input.eventId,
+        },
+        data: {
+          status: "CANCELED",
+          canceled: true,
+          updatedAt: new Date(),
+        },
+        include: {
+          guests: true,
+        },
+      });
+
+      if (!cancelled) {
+        throw new Error("Failed to cancel event.");
+      }
+
+      const cancelTemplate = await ctx.prisma.emailTemplate.findFirst({
+        where: {
+          name: "cancel",
+        },
+      });
+
+      if (!cancelTemplate) {
+        throw new Error("Oops. Something went wrong...");
+      }
+
+      const view = {
+        eventName: input.eventName,
+        eventDate: moment(input.eventDate).format("MMM Do YYYY"),
+        email: input.email,
+        user: input.name,
+      };
+
+      //send bulk email
+      for (const guest of cancelled.guests) {
+        const emailData = {
+          to: guest.email,
+          from: input.email,
+          subject: `[Cancelled]: ${input.eventName}`,
+          text: cancelTemplate.text,
+          html: Mustache.render(cancelTemplate.html, view),
+          sendAt: new Date(),
+        };
+        //Send cancel email
+        const res = await axios.post(
+          process.env.AWS_ENDPOINT as string,
+          emailData
+        );
+        if (res.status === 200) {
+          console.log("Cancel email has been sent.");
+        } else {
+          console.log("Failed to sent cancel email.");
+        }
+      }
     }),
   deleteEvent: protectedProcedure
     .input(z.object({ eventId: z.string() }))
