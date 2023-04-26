@@ -1,5 +1,6 @@
 import React from "react";
 import LoadingSpinner from "../LoadingSpinner";
+import Main from "./Main";
 
 type QueryProp = {
   children: React.ReactNode;
@@ -11,12 +12,12 @@ const LoadingQuery = (props: QueryProp) => {
   return (
     <>
       {props.isLoading ? (
-        <div className="flex h-screen w-full items-center justify-center">
+        <Main className="flex items-center justify-center">
           <div className="flex flex-col items-center gap-6">
             <LoadingSpinner />
             <p>{props.label}</p>
           </div>
-        </div>
+        </Main>
       ) : (
         <>{props.children}</>
       )}
