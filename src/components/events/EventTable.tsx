@@ -63,7 +63,14 @@ const EventTable = (props: EventProp) => {
       },
       {
         header: "",
-        cell: (row) => <ActionButton row={row.row} id={row.column.id} />,
+        cell: (row) => (
+          <ActionButton
+            row={row.row}
+            id={row.column.id}
+            path="events"
+            type="edit"
+          />
+        ),
         accessorKey: "id",
       },
     ],
