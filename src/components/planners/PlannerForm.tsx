@@ -28,7 +28,7 @@ const PlannerForm = (props: PlannerFormProp) => {
   const { id: plannerId } = router.query;
 
   const { data: plannerData, error } = api.planner.getById.useQuery({
-    id: plannerId as string,
+    id: plannerId ? (plannerId as string) : "",
   });
 
   const { mutate: upsertPlanner } = api.planner.upsertPlanner.useMutation({

@@ -86,4 +86,13 @@ export const plannerRouter = createTRPCRouter({
         },
       });
     }),
+  deletePlannerFormUser: protectedProcedure
+    .input(z.object({ plannerId: z.string() }))
+    .mutation(({ ctx, input }) => {
+      return ctx.prisma.planner.delete({
+        where: {
+          id: input.plannerId,
+        },
+      });
+    }),
 });

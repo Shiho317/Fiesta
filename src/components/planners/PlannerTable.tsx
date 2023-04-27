@@ -1,8 +1,11 @@
 import { type ColumnDef } from "@tanstack/react-table";
 import React, { useMemo } from "react";
+import { toast } from "react-toastify";
+import { useRouter } from "next/router";
 
 import ActionButton from "../common/ActionButton";
 import Table from "../common/base/Table";
+import { api } from "~/utils/api";
 
 type Planner = {
   id: string;
@@ -27,6 +30,24 @@ type PlannerProp = {
 };
 const PlannerTable = (props: PlannerProp) => {
   const { planners } = props;
+  const router = useRouter();
+
+  const { mutate: deletePlanner } =
+    api.planner.deletePlannerFormUser.useMutation({
+      onSuccess: () => {
+        toast.success("Deleted planner successfully.");
+        void router.reload();
+      },
+      onError: (error) => {
+        toast.error(error.message);
+      },
+    });
+
+  const deleteHandler = (id: string) => {
+    deletePlanner({
+      plannerId: id,
+    });
+  };
 
   const cols = useMemo<ColumnDef<Planner>[]>(
     () => [
@@ -58,11 +79,29 @@ const PlannerTable = (props: PlannerProp) => {
       {
         header: "",
         cell: (row) => (
-          <ActionButton row={row.row} id={row.column.id} path="planners" />
+          <ActionButton
+            row={row.row}
+            id={row.column.id}
+            path="planners"
+            type="edit"
+          />
+        ),
+        accessorKey: "id",
+      },
+      {
+        header: "",
+        cell: (row) => (
+          <ActionButton
+            row={row.row}
+            id={row.column.id}
+            type="delete"
+            onDelete={deleteHandler}
+          />
         ),
         accessorKey: "id",
       },
     ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
 
