@@ -21,7 +21,6 @@ type EventInputProp = {
   zipcode?: string;
   plannerName?: string;
   plannerEmail?: string;
-  plannerId?: string;
 };
 
 const EventForm = () => {
