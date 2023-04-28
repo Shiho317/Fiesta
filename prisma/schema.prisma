@@ -92,7 +92,7 @@ model Guest {
 model Planner {
     id String @id @unique @default(cuid())
     name String
-    email String @unique
+    email String
     phone String?
     events Event[]
     organization String?
@@ -113,6 +113,8 @@ model Venue {
     registeredById String 
     registeredBy User? @relation(fields: [registeredById], references: [id], onDelete: Cascade)
     event Event[]
+    updatedAt DateTime? @updatedAt
+    createdAt DateTime? @default(now())
 }
 
 model Invitation {

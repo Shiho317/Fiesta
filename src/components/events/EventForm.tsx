@@ -119,12 +119,14 @@ const EventForm = () => {
   };
 
   const [plannerFromList, setPlannerFromList] = useState<boolean>(false);
+  const [plannerId, setPlannerId] = useState<string>();
 
   const plannerOnChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;
     const plannerDataFromDB = eventPlanners?.find(
       (planner) => planner.id === value
     );
+    setPlannerId(plannerDataFromDB?.id ?? "");
     setValue("plannerName", plannerDataFromDB?.name ?? "");
     setValue("plannerEmail", plannerDataFromDB?.email ?? "");
     setPlannerFromList(true);
@@ -149,6 +151,7 @@ const EventForm = () => {
       venueName,
       plannerName,
       plannerEmail,
+      plannerId,
       ...rest,
     });
   };

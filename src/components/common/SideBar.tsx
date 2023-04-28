@@ -20,7 +20,7 @@ const SideBar = () => {
   const sidebarList = [
     {
       name: firstName ? firstName?.toUpperCase() : "YOU",
-      path: "",
+      path: "/admin/user",
       logo: StopIcon,
     },
     {
@@ -60,7 +60,7 @@ const SideBar = () => {
               <Link
                 href={content.path}
                 className={`flex flex-col items-center gap-2 text-sm font-medium ${
-                  currentPage === content.path
+                  currentPage.includes(content.path)
                     ? "text-fiesta-400"
                     : "text-gray-400"
                 }  hover:text-fiesta-400`}

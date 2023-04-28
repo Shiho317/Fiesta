@@ -120,6 +120,7 @@ export const eventRouter = createTRPCRouter({
           address: z.string().optional().nullable(),
           zipcode: z.string().optional().nullable(),
           plannerName: z.string().optional(),
+          plannerId: z.string().optional(),
           plannerEmail: z.string().optional(),
         })
       )
@@ -131,6 +132,7 @@ export const eventRouter = createTRPCRouter({
         venueName,
         plannerName,
         plannerEmail,
+        plannerId,
         hostId,
         venueId,
         country,
@@ -187,7 +189,7 @@ export const eventRouter = createTRPCRouter({
       if (plannerEmail) {
         const eventPlanner = await ctx.prisma.planner.upsert({
           where: {
-            email: plannerEmail ?? "",
+            id: plannerId ?? "",
           },
           create: {
             name: plannerName as string,

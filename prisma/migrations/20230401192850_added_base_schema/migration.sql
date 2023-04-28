@@ -169,9 +169,6 @@ CREATE UNIQUE INDEX "Guest_email_key" ON "Guest"("email");
 CREATE UNIQUE INDEX "Planner_id_key" ON "Planner"("id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Planner_email_key" ON "Planner"("email");
-
--- CreateIndex
 CREATE UNIQUE INDEX "Venue_id_key" ON "Venue"("id");
 
 -- CreateIndex
