@@ -1,56 +1,53 @@
 import { type ColumnDef } from "@tanstack/react-table";
+import { useRouter } from "next/router";
 import React, { useMemo } from "react";
 import { toast } from "react-toastify";
-import { useRouter } from "next/router";
 
+import { api } from "~/utils/api";
 import ActionButton from "../common/ActionButton";
 import Table from "../common/base/Table";
-import { api } from "~/utils/api";
 
-type Planner = {
+type Place = {
   id: string;
   name: string;
-  email: string;
-  phone: string;
+  city: string;
+  address: string;
   events: number;
-  organization: string;
 };
 
-type PlannerProp = {
-  planners: {
+type PlaceTableProp = {
+  places: {
     id: string;
     name: string;
-    email: string;
-    phone: string | null;
-    events: {
+    city: string;
+    address: string;
+    event: {
       id: string;
     }[];
-    organization: string | null;
   }[];
 };
 
-const PlannerTable = (props: PlannerProp) => {
-  const { planners } = props;
+const PlaceTable = (props: PlaceTableProp) => {
+  const { places } = props;
   const router = useRouter();
 
-  const { mutate: deletePlanner } =
-    api.planner.deletePlannerFromUser.useMutation({
-      onSuccess: () => {
-        toast.success("Deleted planner successfully.");
-        void router.reload();
-      },
-      onError: (error) => {
-        toast.error(error.message);
-      },
-    });
+  const { mutate: deletePlace } = api.venue.deleteById.useMutation({
+    onSuccess: () => {
+      toast.success("Deleted place successfully.");
+      void router.reload();
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
 
   const deleteHandler = (id: string) => {
-    deletePlanner({
-      plannerId: id,
+    deletePlace({
+      id,
     });
   };
 
-  const cols = useMemo<ColumnDef<Planner>[]>(
+  const cols = useMemo<ColumnDef<Place>[]>(
     () => [
       {
         header: "Name",
@@ -58,19 +55,14 @@ const PlannerTable = (props: PlannerProp) => {
         accessorKey: "name",
       },
       {
-        header: "Email",
+        header: "City",
         cell: (row) => row.renderValue(),
-        accessorKey: "email",
+        accessorKey: "city",
       },
       {
-        header: "Phone",
+        header: "Address",
         cell: (row) => row.renderValue(),
-        accessorKey: "phone",
-      },
-      {
-        header: "Company",
-        cell: (row) => row.renderValue(),
-        accessorKey: "organization",
+        accessorKey: "address",
       },
       {
         header: "Events",
@@ -83,7 +75,7 @@ const PlannerTable = (props: PlannerProp) => {
           <ActionButton
             row={row.row}
             id={row.column.id}
-            path="planners"
+            path="places"
             type="edit"
           />
         ),
@@ -108,18 +100,18 @@ const PlannerTable = (props: PlannerProp) => {
 
   const tableData = () => {
     const items = [];
-    for (let i = 0; i < planners.length; i++) {
+    for (let i = 0; i < places.length; i++) {
       items.push({
-        id: planners[i]?.id as string,
-        name: planners[i]?.name as string,
-        email: planners[i]?.email as string,
-        phone: planners[i]?.phone as string,
-        events: planners[i]?.events.length as number,
-        organization: planners[i]?.organization as string,
+        id: places[i]?.id as string,
+        name: places[i]?.name as string,
+        city: places[i]?.city as string,
+        address: places[i]?.address as string,
+        events: places[i]?.event.length as number,
       });
     }
     return items;
   };
+
   return (
     <>
       <Table data={tableData()} columns={cols} />
@@ -127,4 +119,4 @@ const PlannerTable = (props: PlannerProp) => {
   );
 };
 
-export default PlannerTable;
+export default PlaceTable;

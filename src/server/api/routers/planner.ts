@@ -21,15 +21,6 @@ export const plannerRouter = createTRPCRouter({
         },
       });
     }),
-  getByEmail: protectedProcedure
-    .input(z.object({ email: z.string() }))
-    .query(({ ctx, input }) => {
-      return ctx.prisma.planner.findUnique({
-        where: {
-          email: input.email,
-        },
-      });
-    }),
   getAllByUser: protectedProcedure
     .input(z.object({ userId: z.string() }))
     .query(({ ctx, input }) => {
@@ -86,7 +77,7 @@ export const plannerRouter = createTRPCRouter({
         },
       });
     }),
-  deletePlannerFormUser: protectedProcedure
+  deletePlannerFromUser: protectedProcedure
     .input(z.object({ plannerId: z.string() }))
     .mutation(({ ctx, input }) => {
       return ctx.prisma.planner.delete({
