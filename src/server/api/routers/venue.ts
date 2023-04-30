@@ -37,10 +37,14 @@ export const venueRouter = createTRPCRouter({
     .input(
       z.object({
         userId: z.string(),
+        skip: z.number(),
+        take: z.number(),
       })
     )
     .query(({ ctx, input }) => {
       return ctx.prisma.venue.findMany({
+        skip: input.skip,
+        take: input.take,
         where: {
           registeredById: input.userId,
         },
@@ -51,6 +55,15 @@ export const venueRouter = createTRPCRouter({
             },
           },
           ...defaultVenueData,
+        },
+      });
+    }),
+  getTotalLengthByUserId: protectedProcedure
+    .input(z.object({ userId: z.string() }))
+    .query(({ ctx, input }) => {
+      return ctx.prisma.venue.count({
+        where: {
+          registeredById: input.userId,
         },
       });
     }),

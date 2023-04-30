@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import React from "react";
+import React, { useState } from "react";
 import { PlusCircleIcon } from "@heroicons/react/24/solid";
 
 import AuthenticatedLayout from "~/components/common/AuthenticatedLayout";
@@ -11,18 +11,30 @@ import Link from "next/link";
 import LoadingQuery from "~/components/common/base/LoadingQuery";
 
 import { type NextPageWithLayout } from "~/types";
+import PaginationButton from "~/components/common/PaginationButton";
 
 const InvitationList: NextPageWithLayout = () => {
   const router = useRouter();
   const { id: eventId } = router.query;
 
+  const [skipNum, setSkipNum] = useState<number>(0);
+  const takeNum = 10;
+
   const { data: eventData } = api.event.getById.useQuery({
     id: eventId as string,
   });
 
-  const { data: invitations, isLoading } =
-    api.invitation.getAllInvitationByEvent.useQuery({
+  const { data: totalLength } = api.invitation.getTotalLengthByEventId.useQuery(
+    {
       eventId: eventId as string,
+    }
+  );
+
+  const { data: invitations, isLoading } =
+    api.invitation.getAllInvitationByEventPaginated.useQuery({
+      eventId: eventId as string,
+      skip: skipNum,
+      take: takeNum,
     });
 
   return (
@@ -32,7 +44,18 @@ const InvitationList: NextPageWithLayout = () => {
           Invitation List
         </h1>
         {invitations && invitations.length > 0 ? (
-          <InvitationTable invitations={invitations} />
+          <>
+            <InvitationTable invitations={invitations} />
+            <div className="mt-4">
+              <PaginationButton
+                start={skipNum + 1}
+                end={skipNum + takeNum}
+                take={takeNum}
+                total={totalLength as number}
+                skip={setSkipNum}
+              />
+            </div>
+          </>
         ) : (
           <Empty content="No one is invited." />
         )}
