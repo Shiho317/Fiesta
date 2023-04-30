@@ -15,10 +15,14 @@ type TokenResponseProp = {
 };
 
 export const invitationRouter = createTRPCRouter({
-  getAllInvitationByEvent: protectedProcedure
-    .input(z.object({ eventId: z.string() }))
+  getAllInvitationByEventPaginated: protectedProcedure
+    .input(
+      z.object({ eventId: z.string(), skip: z.number(), take: z.number() })
+    )
     .query(({ ctx, input }) => {
       return ctx.prisma.invitation.findMany({
+        skip: input.skip,
+        take: input.take,
         where: {
           eventId: input.eventId,
         },
@@ -28,6 +32,15 @@ export const invitationRouter = createTRPCRouter({
           email: true,
           attend: true,
           respondedAt: true,
+        },
+      });
+    }),
+  getTotalLengthByEventId: protectedProcedure
+    .input(z.object({ eventId: z.string() }))
+    .query(({ ctx, input }) => {
+      return ctx.prisma.invitation.count({
+        where: {
+          eventId: input.eventId,
         },
       });
     }),

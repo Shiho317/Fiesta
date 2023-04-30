@@ -1,7 +1,7 @@
 import { PlusCircleIcon } from "@heroicons/react/24/solid";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import React from "react";
+import React, { useState } from "react";
 
 import AuthenticatedLayout from "~/components/common/AuthenticatedLayout";
 import Empty from "~/components/common/base/Empty";
@@ -11,13 +11,23 @@ import PlannerTable from "~/components/planners/PlannerTable";
 import { api } from "~/utils/api";
 
 import { type NextPageWithLayout } from "~/types";
+import PaginationButton from "~/components/common/PaginationButton";
 
 const FriendsPage: NextPageWithLayout = () => {
   const { data: session } = useSession();
 
+  const [skipNum, setSkipNum] = useState<number>(0);
+  const takeNum = 10;
+
+  const { data: totalLength } = api.planner.getTotalLengthByUserId.useQuery({
+    userId: session?.user.id as string,
+  });
+
   const { data: plannerData, isLoading } =
     api.planner.getPlannerPaginated.useQuery({
       userId: session?.user.id as string,
+      skip: skipNum,
+      take: takeNum,
     });
 
   return (
@@ -26,7 +36,18 @@ const FriendsPage: NextPageWithLayout = () => {
         <div>
           <h1 className="text-3xl font-semibold text-gray-300">Planners</h1>
           {plannerData && plannerData.length > 0 ? (
-            <PlannerTable planners={plannerData} />
+            <>
+              <PlannerTable planners={plannerData} />
+              <div className="mt-4">
+                <PaginationButton
+                  start={skipNum + 1}
+                  end={skipNum + takeNum}
+                  take={takeNum}
+                  total={totalLength as number}
+                  skip={setSkipNum}
+                />
+              </div>
+            </>
           ) : (
             <Empty content="No Planners Exist." />
           )}

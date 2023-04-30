@@ -31,9 +31,11 @@ export const plannerRouter = createTRPCRouter({
       });
     }),
   getPlannerPaginated: protectedProcedure
-    .input(z.object({ userId: z.string() }))
+    .input(z.object({ userId: z.string(), skip: z.number(), take: z.number() }))
     .query(({ ctx, input }) => {
       return ctx.prisma.planner.findMany({
+        skip: input.skip,
+        take: input.take,
         where: {
           clientId: input.userId,
         },
@@ -47,6 +49,15 @@ export const plannerRouter = createTRPCRouter({
             },
           },
           ...defaultPlannerData,
+        },
+      });
+    }),
+  getTotalLengthByUserId: protectedProcedure
+    .input(z.object({ userId: z.string() }))
+    .query(({ ctx, input }) => {
+      return ctx.prisma.planner.count({
+        where: {
+          clientId: input.userId,
         },
       });
     }),

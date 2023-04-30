@@ -54,9 +54,11 @@ export const eventRouter = createTRPCRouter({
       });
     }),
   getComingEventByUserId: protectedProcedure
-    .input(z.object({ userId: z.string() }))
+    .input(z.object({ userId: z.string(), skip: z.number(), take: z.number() }))
     .query(({ ctx, input }) => {
       return ctx.prisma.event.findMany({
+        skip: input.skip,
+        take: input.take,
         where: {
           hostId: input.userId,
           eventDate: {
@@ -82,10 +84,24 @@ export const eventRouter = createTRPCRouter({
         },
       });
     }),
-  getPastEventByUserId: protectedProcedure
+  getTotalComingEventLengthByUserId: protectedProcedure
     .input(z.object({ userId: z.string() }))
     .query(({ ctx, input }) => {
+      return ctx.prisma.event.count({
+        where: {
+          hostId: input.userId,
+          eventDate: {
+            gte: new Date(),
+          },
+        },
+      });
+    }),
+  getPastEventByUserId: protectedProcedure
+    .input(z.object({ userId: z.string(), skip: z.number(), take: z.number() }))
+    .query(({ ctx, input }) => {
       return ctx.prisma.event.findMany({
+        skip: input.skip,
+        take: input.take,
         where: {
           hostId: input.userId,
           eventDate: {
@@ -103,6 +119,18 @@ export const eventRouter = createTRPCRouter({
             select: {
               name: true,
             },
+          },
+        },
+      });
+    }),
+  getTotalPastEventLengthByUserId: protectedProcedure
+    .input(z.object({ userId: z.string() }))
+    .query(({ ctx, input }) => {
+      return ctx.prisma.event.count({
+        where: {
+          hostId: input.userId,
+          eventDate: {
+            lt: new Date(),
           },
         },
       });
