@@ -9,9 +9,9 @@ import LoadingQuery from "~/components/common/base/LoadingQuery";
 import Main from "~/components/common/base/Main";
 import PlannerTable from "~/components/planners/PlannerTable";
 import { api } from "~/utils/api";
+import PaginationButton from "~/components/common/PaginationButton";
 
 import { type NextPageWithLayout } from "~/types";
-import PaginationButton from "~/components/common/PaginationButton";
 
 const FriendsPage: NextPageWithLayout = () => {
   const { data: session } = useSession();

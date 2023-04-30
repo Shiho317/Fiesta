@@ -8,10 +8,10 @@ import Empty from "~/components/common/base/Empty";
 import Main from "~/components/common/base/Main";
 import { api } from "~/utils/api";
 import EventTable from "~/components/events/EventTable";
-
-import { type NextPageWithLayout } from "~/types";
 import LoadingQuery from "~/components/common/base/LoadingQuery";
 import PaginationButton from "~/components/common/PaginationButton";
+
+import { type NextPageWithLayout } from "~/types";
 
 const EventPage: NextPageWithLayout = () => {
   const { data: session } = useSession();

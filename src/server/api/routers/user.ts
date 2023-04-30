@@ -5,6 +5,7 @@ import { z } from "zod";
 import { UserSchema } from "~/utils/schema";
 import { generateJWT } from "~/utils/server";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
+import { verifyAndDecodeJWT } from "~/utils/server";
 
 export const userRouter = createTRPCRouter({
   me: protectedProcedure.query(async ({ ctx }) => {
@@ -17,12 +18,20 @@ export const userRouter = createTRPCRouter({
   }),
   getByEmail: protectedProcedure
     .input(z.object({ email: z.string() }))
-    .query(({ ctx, input }) => {
-      return ctx.prisma.user.findUnique({
+    .query(async ({ ctx, input }) => {
+      const user = await ctx.prisma.user.findUnique({
         where: {
           email: input.email,
         },
       });
+      if (!user) {
+        throw new Error("User information does not exist.");
+      }
+      const password = verifyAndDecodeJWT(user?.password);
+      return {
+        user,
+        password,
+      };
     }),
   createUser: publicProcedure
     .input(UserSchema)
@@ -68,5 +77,19 @@ export const userRouter = createTRPCRouter({
         });
       }
       return verifiedUser;
+    }),
+  updateUser: protectedProcedure
+    .input(UserSchema.merge(z.object({ id: z.string() })))
+    .mutation(({ ctx, input }) => {
+      return ctx.prisma.user.update({
+        where: {
+          id: input.id,
+        },
+        data: {
+          name: input.name,
+          email: input.email,
+          password: input.password,
+        },
+      });
     }),
 });
