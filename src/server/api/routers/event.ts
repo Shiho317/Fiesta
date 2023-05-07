@@ -5,6 +5,7 @@ import moment from "moment";
 
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { EventSchema } from "~/utils/schema";
+import { EventStatusType } from "~/utils/enum";
 
 export const eventRouter = createTRPCRouter({
   getById: protectedProcedure
@@ -50,6 +51,15 @@ export const eventRouter = createTRPCRouter({
               name: true,
             },
           },
+        },
+      });
+    }),
+  getTotalCount: protectedProcedure
+    .input(z.object({ userId: z.string() }))
+    .query(({ ctx, input }) => {
+      return ctx.prisma.event.count({
+        where: {
+          hostId: input.userId,
         },
       });
     }),
@@ -303,6 +313,83 @@ export const eventRouter = createTRPCRouter({
 
       return event;
     }),
+  getCountOfPlanningStatus: protectedProcedure
+    .input(z.object({ userId: z.string() }))
+    .query(({ ctx, input }) => {
+      return ctx.prisma.event.count({
+        where: {
+          hostId: input.userId,
+          status: EventStatusType.PLANNING,
+        },
+      });
+    }),
+  getCountOfCompletedStatus: protectedProcedure
+    .input(z.object({ userId: z.string() }))
+    .query(({ ctx, input }) => {
+      return ctx.prisma.event.count({
+        where: {
+          hostId: input.userId,
+          status: EventStatusType.COMPLETED,
+        },
+      });
+    }),
+  getCountOfCanceledStatus: protectedProcedure
+    .input(z.object({ userId: z.string() }))
+    .query(({ ctx, input }) => {
+      return ctx.prisma.event.count({
+        where: {
+          hostId: input.userId,
+          status: EventStatusType.CANCELED,
+        },
+      });
+    }),
+  getForthcomingEvent: protectedProcedure
+    .input(z.object({ userId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const data = await ctx.prisma.event.findFirst({
+        where: {
+          hostId: input.userId,
+          eventDate: {
+            gte: new Date(),
+          },
+        },
+      });
+      if (!data) {
+        throw new Error("Could not find any event");
+      }
+      const attend = await ctx.prisma.invitation.count({
+        where: {
+          eventId: data.id,
+          attend: true,
+          NOT: {
+            respondedAt: null,
+          },
+        },
+      });
+      const decline = await ctx.prisma.invitation.count({
+        where: {
+          eventId: data.id,
+          attend: false,
+          NOT: {
+            respondedAt: null,
+          },
+        },
+      });
+      const noResponse = await ctx.prisma.invitation.count({
+        where: {
+          eventId: data.id,
+          attend: false,
+          respondedAt: null,
+        },
+      });
+
+      return {
+        data,
+        attend,
+        decline,
+        noResponse,
+      };
+    }),
   cancelEvent: protectedProcedure
     .input(
       z.object({
@@ -319,7 +406,7 @@ export const eventRouter = createTRPCRouter({
           id: input.eventId,
         },
         data: {
-          status: "CANCELED",
+          status: EventStatusType.CANCELED,
           canceled: true,
           updatedAt: new Date(),
         },

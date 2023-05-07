@@ -73,10 +73,10 @@ const SideBar = () => {
         </ul>
       </div>
       <Link
-        href={"/"}
+        href={"/auth/logout"}
         className="text-md mb-8 font-medium text-gray-400 hover:text-fiesta-400"
       >
-        Our Support
+        Log Out
       </Link>
     </nav>
   );

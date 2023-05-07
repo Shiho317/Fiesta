@@ -8,6 +8,7 @@ type InputProp<TFormValues extends FieldValues> = {
   name: string | Path<TFormValues>;
   placeholder?: string;
   className?: string;
+  inputStyle?: string;
   required?: boolean;
   readOnly?: boolean;
   children?: React.ReactNode;
@@ -25,6 +26,7 @@ const Input = <TFormValues extends Record<string, unknown>>(
     name,
     placeholder,
     className,
+    inputStyle,
     required,
     readOnly,
     children,
@@ -46,7 +48,9 @@ const Input = <TFormValues extends Record<string, unknown>>(
         placeholder={placeholder}
         required={required ?? false}
         readOnly={readOnly ?? false}
-        className="w-full p-3 text-center text-black outline-none"
+        className={`w-full p-3 text-center text-black outline-none ${
+          inputStyle ?? ""
+        }`}
         onChange={onChangeHandler}
         {...(register && register(name as Path<TFormValues>))}
       />

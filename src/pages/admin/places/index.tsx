@@ -9,9 +9,9 @@ import Empty from "~/components/common/base/Empty";
 import LoadingQuery from "~/components/common/base/LoadingQuery";
 import Main from "~/components/common/base/Main";
 import PlaceTable from "~/components/places/PlaceTable";
+import { api } from "~/utils/api";
 
 import { type NextPageWithLayout } from "~/types";
-import { api } from "~/utils/api";
 
 const PlacesPage: NextPageWithLayout = () => {
   const { data: session } = useSession();

@@ -1,17 +1,17 @@
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { PlusCircleIcon } from "@heroicons/react/24/solid";
+import Link from "next/link";
 
 import AuthenticatedLayout from "~/components/common/AuthenticatedLayout";
 import Empty from "~/components/common/base/Empty";
 import Main from "~/components/common/base/Main";
 import InvitationTable from "~/components/invitations/InvitationTable";
 import { api } from "~/utils/api";
-import Link from "next/link";
 import LoadingQuery from "~/components/common/base/LoadingQuery";
+import PaginationButton from "~/components/common/PaginationButton";
 
 import { type NextPageWithLayout } from "~/types";
-import PaginationButton from "~/components/common/PaginationButton";
 
 const InvitationList: NextPageWithLayout = () => {
   const router = useRouter();

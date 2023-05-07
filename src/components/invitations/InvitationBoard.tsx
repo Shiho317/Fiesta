@@ -1,9 +1,11 @@
-import { type EventStatus } from "@prisma/client";
 import moment from "moment";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 
 import { ChevronDoubleRightIcon } from "@heroicons/react/24/solid";
+import { EventStatusColor, EventStatusType } from "~/utils/enum";
+
+import { type EventStatus } from "@prisma/client";
 
 type EventProp = {
   event: {
@@ -24,39 +26,31 @@ type EventProp = {
 const InvitationBoard = (props: EventProp) => {
   const { event } = props;
 
-  const statusType = {
-    completed: "COMPLETED",
-    canceled: "CANCELED",
-    planning: "PLANNING",
-  };
-
-  const [eventStatus, setEventStatus] = useState<string>(statusType.planning);
+  const [eventStatusColor, setEventStatusColor] = useState<string>(
+    EventStatusColor.PLANNING
+  );
 
   useEffect(() => {
     switch (event.status) {
-      case statusType.completed:
-        setEventStatus("green");
+      case EventStatusType.COMPLETED:
+        setEventStatusColor(EventStatusColor.COMPLETED);
         break;
-      case statusType.planning:
-        setEventStatus("blue");
+      case EventStatusType.PLANNING:
+        setEventStatusColor(EventStatusColor.PLANNING);
         break;
-      case statusType.canceled:
-        setEventStatus("red");
+      case EventStatusType.CANCELED:
+        setEventStatusColor(EventStatusColor.CANCELED);
         break;
+      default:
+        setEventStatusColor(EventStatusColor.PLANNING);
     }
-  }, [event, statusType.canceled, statusType.completed, statusType.planning]);
+  }, [event]);
 
   return (
     <div className="relative z-10 mt-4 rounded-lg border border-gray-200 bg-fiesta-100/30 p-4 shadow-md shadow-gray-300/30 backdrop-blur-md backdrop-filter hover:shadow-lg">
       <h3 className="font-regular text-lg">{event.name}</h3>
       <p
-        className={`my-2 w-fit rounded-xl px-2 py-1 text-xs text-white ${
-          eventStatus === "green"
-            ? "bg-green-200"
-            : eventStatus === "red"
-            ? "bg-red-200"
-            : "bg-blue-200"
-        }`}
+        className={`my-2 w-fit rounded-xl px-2 py-1 text-xs text-white ${eventStatusColor}`}
       >
         {event.status}
       </p>
