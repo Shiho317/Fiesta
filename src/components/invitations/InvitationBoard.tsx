@@ -5,11 +5,13 @@ import React, { useEffect, useState } from "react";
 import { ChevronDoubleRightIcon } from "@heroicons/react/24/solid";
 import { EventStatusColor, EventStatusType } from "~/utils/enum";
 
+import { type EventStatus } from "@prisma/client";
+
 type EventProp = {
   event: {
     id: string;
     name: string;
-    status: EventStatusType;
+    status: EventStatus;
     hostId: string;
     eventDate: Date;
     guests: {
