@@ -51,13 +51,25 @@ model User {
     email         String   @unique
     password      String   @unique
     emailVerified DateTime?
-    image         String?
+    image Image?
     accounts      Account[]
     sessions      Session[]
     hosting       Event[]
     places        Venue[]
     planners      Planner[]
     invitationsSent Invitation[]
+}
+
+model Image {
+    id String @id @default(cuid())
+    signature String?
+    publicId String
+    format String
+    url String
+    userId String @unique
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+    createdAt DateTime? @default(now())
+    updatedAt DateTime? @updatedAt
 }
 
 model Event {

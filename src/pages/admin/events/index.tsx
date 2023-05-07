@@ -49,7 +49,7 @@ const EventPage: NextPageWithLayout = () => {
     <LoadingQuery isLoading={isLoading}>
       <Main className="grid grid-rows-2 gap-2 p-8">
         <div>
-          <h1 className="text-3xl font-semibold text-gray-300">Coming Up</h1>
+          <h1 className="text-3xl font-semibold text-gray-300">Upcoming</h1>
           {comingEvents && comingEvents.length > 0 ? (
             <>
               <EventTable events={comingEvents} />
@@ -64,7 +64,7 @@ const EventPage: NextPageWithLayout = () => {
               </div>
             </>
           ) : (
-            <Empty content="No Coming Up Events" />
+            <Empty content="No Upcoming Events" />
           )}
         </div>
         <div>
