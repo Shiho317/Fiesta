@@ -1,4 +1,4 @@
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import React from "react";
 import {
@@ -9,6 +9,9 @@ import {
   EnvelopeIcon,
 } from "@heroicons/react/24/outline";
 import { useRouter } from "next/router";
+import Image from "next/image";
+
+import Logo from "../../../public/images/fiesta-logo.png";
 
 const SideBar = () => {
   const { data: userInfo } = useSession();
@@ -45,10 +48,16 @@ const SideBar = () => {
     },
   ];
 
+  const signOutHandler = async () => {
+    await signOut({ callbackUrl: "/auth/logout" });
+  };
+
   return (
     <nav className="relative left-0 top-0 flex h-screen w-48 flex-col items-center justify-evenly rounded-[0_10px_10px_0] border border-fiesta-100 bg-fiesta-400/30 shadow-[0_0_15px_5px_rgba(46,16,101,0.25)]">
       <div className="mt-4">
-        {/* TODO: Put LOGO here */}
+        <div className="flex h-10 w-full items-center justify-center overflow-hidden">
+          <Image src={Logo} alt="fiesta-logo" width={150} priority />
+        </div>
         <h3 className="mt-4 text-center text-lg font-medium text-fiesta-300">
           HELLO.
         </h3>
@@ -72,12 +81,13 @@ const SideBar = () => {
           ))}
         </ul>
       </div>
-      <Link
-        href={"/auth/logout"}
+      <button
+        type="button"
         className="text-md mb-8 font-medium text-gray-400 hover:text-fiesta-400"
+        onClick={signOutHandler}
       >
         Log Out
-      </Link>
+      </button>
     </nav>
   );
 };

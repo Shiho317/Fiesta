@@ -3,6 +3,11 @@ import { type Config } from "tailwindcss";
 export default {
   content: ["./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
+    screens: {
+      desktop: "1200px",
+      laptop: "992px",
+      tablet: "768px",
+    },
     extend: {
       colors: {
         fiesta: {

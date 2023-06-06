@@ -8,6 +8,7 @@ import { api } from "~/utils/api";
 import UserProfilePicture from "~/components/user/UserProfilePicture";
 import UserProfileForm from "~/components/user/UserProfileForm";
 import UserChart from "~/components/user/UserChart";
+import LoadingQuery from "~/components/common/base/LoadingQuery";
 
 import { type NextPageWithLayout } from "~/types";
 
@@ -25,7 +26,11 @@ const UserPage: NextPageWithLayout = () => {
     undefined
   );
 
-  const { data: userData, error } = api.user.getByEmail.useQuery({
+  const {
+    data: userData,
+    error,
+    isLoading,
+  } = api.user.getByEmail.useQuery({
     email: session?.user.email as string,
   });
 
@@ -40,15 +45,17 @@ const UserPage: NextPageWithLayout = () => {
   }, [userData]);
 
   return (
-    <Main className="p-8">
-      <div className="grid grid-rows-5">
-        <div className="row-span-2 grid grid-cols-5 gap-4">
-          <UserProfilePicture url={profilePicture} />
-          <UserProfileForm register={register} handleSubmit={handleSubmit} />
+    <LoadingQuery isLoading={isLoading}>
+      <Main className="p-8">
+        <div className="grid desktop:grid-rows-5">
+          <div className="grid grid-cols-5 gap-4 desktop:row-span-2">
+            <UserProfilePicture url={profilePicture} />
+            <UserProfileForm register={register} handleSubmit={handleSubmit} />
+          </div>
+          <UserChart />
         </div>
-        <UserChart />
-      </div>
-    </Main>
+      </Main>
+    </LoadingQuery>
   );
 };
 

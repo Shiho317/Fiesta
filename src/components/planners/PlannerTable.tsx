@@ -6,6 +6,7 @@ import { useRouter } from "next/router";
 import ActionButton from "../common/ActionButton";
 import Table from "../common/base/Table";
 import { api } from "~/utils/api";
+import MediaQuery from "../common/base/MediaQuery";
 
 type Planner = {
   id: string;
@@ -32,6 +33,7 @@ type PlannerProp = {
 const PlannerTable = (props: PlannerProp) => {
   const { planners } = props;
   const router = useRouter();
+  const { isTabletOrMobile } = MediaQuery();
 
   const { mutate: deletePlanner } =
     api.planner.deletePlannerFromUser.useMutation({
@@ -106,6 +108,47 @@ const PlannerTable = (props: PlannerProp) => {
     []
   );
 
+  const colsForMobileAndTablet = useMemo<ColumnDef<Planner>[]>(
+    () => [
+      {
+        header: "Name",
+        cell: (row) => row.renderValue(),
+        accessorKey: "name",
+      },
+      {
+        header: "Email",
+        cell: (row) => row.renderValue(),
+        accessorKey: "email",
+      },
+      {
+        header: "",
+        cell: (row) => (
+          <ActionButton
+            row={row.row}
+            id={row.column.id}
+            path="planners"
+            type="edit"
+          />
+        ),
+        accessorKey: "id",
+      },
+      {
+        header: "",
+        cell: (row) => (
+          <ActionButton
+            row={row.row}
+            id={row.column.id}
+            type="delete"
+            onDelete={deleteHandler}
+          />
+        ),
+        accessorKey: "id",
+      },
+    ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  );
+
   const tableData = () => {
     const items = [];
     for (let i = 0; i < planners.length; i++) {
@@ -122,7 +165,10 @@ const PlannerTable = (props: PlannerProp) => {
   };
   return (
     <>
-      <Table data={tableData()} columns={cols} />
+      <Table
+        data={tableData()}
+        columns={isTabletOrMobile ? colsForMobileAndTablet : cols}
+      />
     </>
   );
 };

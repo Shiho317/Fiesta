@@ -4,6 +4,9 @@ import React from "react";
 
 import DefaultLayout from "./DefaultLayout";
 import SideBar from "./SideBar";
+import MediaQuery from "./base/MediaQuery";
+import FooterNav from "./mobile/FooterNav";
+import Header from "./mobile/Header";
 
 type LayoutProp = {
   children: React.ReactNode;
@@ -11,11 +14,7 @@ type LayoutProp = {
 
 const AuthenticatedLayout = (props: LayoutProp) => {
   const { status } = useSession();
-
-  if (status === "loading") {
-    //TODO: add loading component
-    return <>{props.children}</>;
-  }
+  const { isTabletOrMobile } = MediaQuery();
 
   if (status === "unauthenticated") {
     return <DefaultLayout>{props.children}</DefaultLayout>;
@@ -31,8 +30,8 @@ const AuthenticatedLayout = (props: LayoutProp) => {
         />
       </Head>
       <div className="flex">
-        {/* add sidebar */}
-        <SideBar />
+        {isTabletOrMobile && <Header />}
+        {isTabletOrMobile ? <FooterNav /> : <SideBar />}
         {props.children}
       </div>
     </>

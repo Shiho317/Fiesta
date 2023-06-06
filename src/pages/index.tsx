@@ -21,7 +21,7 @@ const Home: NextPageWithLayout = () => {
       <main className="h-screen w-screen bg-white">
         <Header />
         <div>
-          <div className="absolute left-1/4 top-1/2 z-10 flex h-1/2 w-1/3 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-lg border border-gray-200 bg-gray-100/25 shadow-md shadow-gray-300/30 backdrop-blur-md backdrop-filter">
+          <div className="absolute left-1/2 top-1/2 z-10 flex h-1/2 w-3/4 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-lg border border-gray-200 bg-gray-100/25 shadow-md shadow-gray-300/30 backdrop-blur-md backdrop-filter tablet:w-2/3 laptop:left-1/4 laptop:w-1/3">
             <div className="w-full p-8">
               {/* TODO:  maybe different font for sub title? */}
               <h1 className="text-4xl font-semibold">BE SPECIAL</h1>
@@ -37,7 +37,7 @@ const Home: NextPageWithLayout = () => {
               />
             </div>
           </div>
-          <div className="absolute right-0 h-full w-3/4 mix-blend-multiply">
+          <div className="absolute right-0 h-full w-full mix-blend-multiply laptop:h-full laptop:w-3/4">
             <Image
               src={champagneWithConfetti}
               alt="fiesta-image"

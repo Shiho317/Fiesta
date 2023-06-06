@@ -8,7 +8,7 @@ import { type NextPageWithLayout } from "~/types";
 
 const EditPlace: NextPageWithLayout = () => {
   return (
-    <Main className="p-8">
+    <Main className="min-h-screen p-8">
       <h1 className="text-3xl font-semibold text-gray-300">Edit Place</h1>
       <PlaceForm />
     </Main>

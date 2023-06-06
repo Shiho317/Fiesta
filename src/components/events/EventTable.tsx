@@ -5,6 +5,7 @@ import { type ColumnDef } from "@tanstack/react-table";
 
 import Table from "../common/base/Table";
 import ActionButton from "../common/ActionButton";
+import MediaQuery from "../common/base/MediaQuery";
 
 type Event = {
   id: string;
@@ -33,6 +34,7 @@ type EventProp = {
 
 const EventTable = (props: EventProp) => {
   const { events } = props;
+  const { isTabletOrMobile } = MediaQuery();
 
   const cols = useMemo<ColumnDef<Event>[]>(
     () => [
@@ -78,6 +80,34 @@ const EventTable = (props: EventProp) => {
     []
   );
 
+  const colsForMobileAndTablet = useMemo<ColumnDef<Event>[]>(
+    () => [
+      {
+        header: "Name",
+        cell: (row) => row.renderValue(),
+        accessorKey: "name",
+      },
+      {
+        header: "Status",
+        cell: (row) => row.renderValue(),
+        accessorKey: "status",
+      },
+      {
+        header: "",
+        cell: (row) => (
+          <ActionButton
+            row={row.row}
+            id={row.column.id}
+            path="events"
+            type="edit"
+          />
+        ),
+        accessorKey: "id",
+      },
+    ],
+    []
+  );
+
   const tableData = () => {
     const items = [];
     for (let i = 0; i < events.length; i++) {
@@ -96,7 +126,10 @@ const EventTable = (props: EventProp) => {
 
   return (
     <>
-      <Table data={tableData()} columns={cols} />
+      <Table
+        data={tableData()}
+        columns={isTabletOrMobile ? colsForMobileAndTablet : cols}
+      />
     </>
   );
 };

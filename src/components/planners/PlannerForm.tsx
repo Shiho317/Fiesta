@@ -66,7 +66,7 @@ const PlannerForm = (props: PlannerFormProp) => {
   return (
     <div className="relative z-10 mt-4 rounded-lg border border-gray-200 bg-fiesta-100/30 p-4 shadow-md shadow-gray-300/30 backdrop-blur-md backdrop-filter">
       <form
-        className="grid grid-cols-2 gap-2"
+        className="flex flex-col gap-2 tablet:grid tablet:grid-cols-2"
         onSubmit={handleSubmit(onSubmit)}
       >
         <Input

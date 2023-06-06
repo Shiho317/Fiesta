@@ -51,7 +51,7 @@ const UserProfileForm = (props: UserProfileProp) => {
   };
 
   return (
-    <div className="relative z-10 col-span-3 mt-4 rounded-lg border border-gray-200 bg-fiesta-100/30 p-4 shadow-md shadow-gray-300/30 backdrop-blur-md backdrop-filter">
+    <div className="relative z-10 col-span-5 mt-4 rounded-lg border border-gray-200 bg-fiesta-100/30 p-4 shadow-md shadow-gray-300/30 backdrop-blur-md backdrop-filter tablet:col-span-3">
       <form className="mt-5" onSubmit={handleSubmit(onSubmit)}>
         <Input
           type="text"

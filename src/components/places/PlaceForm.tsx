@@ -2,11 +2,11 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
 
 import { api } from "~/utils/api";
 import Input from "../common/base/Input";
 import Button from "../common/base/Button";
-import { toast } from "react-toastify";
 
 type PlaceInputProp = {
   name: string;
@@ -67,7 +67,7 @@ const PlaceForm = () => {
   return (
     <div className="relative z-10 mt-4 rounded-lg border border-gray-200 bg-fiesta-100/30 p-4 shadow-md shadow-gray-300/30 backdrop-blur-md backdrop-filter">
       <form
-        className="grid grid-cols-2 gap-2"
+        className="flex flex-col gap-2 tablet:grid tablet:grid-cols-2"
         onSubmit={handleSubmit(onSubmit)}
       >
         <Input
