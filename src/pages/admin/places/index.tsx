@@ -31,7 +31,7 @@ const PlacesPage: NextPageWithLayout = () => {
 
   return (
     <LoadingQuery isLoading={isLoading}>
-      <Main className="p-8">
+      <Main className="h-screen p-8">
         <div>
           <h1 className="text-3xl font-semibold text-gray-300">Places</h1>
           {placeData && placeData.length > 0 ? (
@@ -53,9 +53,9 @@ const PlacesPage: NextPageWithLayout = () => {
         </div>
         <Link
           href={"/admin/places/new"}
-          className="absolute bottom-10 right-10 bg-transparent text-fiesta-300 drop-shadow-lg hover:text-gray-300"
+          className="absolute bottom-20 right-5 bg-transparent text-fiesta-300 drop-shadow-lg hover:text-gray-300 laptop:bottom-10 laptop:right-10"
         >
-          <PlusCircleIcon className="h-16 w-16" />
+          <PlusCircleIcon className="h-12 w-12 laptop:h-16 laptop:w-16" />
         </Link>
       </Main>
     </LoadingQuery>

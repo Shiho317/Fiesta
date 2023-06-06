@@ -20,10 +20,10 @@ const InvitationPage: NextPageWithLayout = () => {
 
   return (
     <LoadingQuery isLoading={isLoading}>
-      <Main className="p-8">
+      <Main className="h-screen p-8">
         <h1 className="text-3xl font-semibold text-gray-300">Invitations</h1>
         {eventData && eventData.length > 0 ? (
-          <div className="grid grid-cols-4 items-stretch gap-4">
+          <div className="grid grid-cols-1 items-stretch gap-4 tablet:grid-cols-2 laptop:grid-cols-4">
             {eventData.map((event) => (
               <InvitationBoard event={event} key={event.id} />
             ))}

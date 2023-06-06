@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import { api } from "~/utils/api";
 import ActionButton from "../common/ActionButton";
 import Table from "../common/base/Table";
+import MediaQuery from "../common/base/MediaQuery";
 
 type Place = {
   id: string;
@@ -30,6 +31,7 @@ type PlaceTableProp = {
 const PlaceTable = (props: PlaceTableProp) => {
   const { places } = props;
   const router = useRouter();
+  const { isTabletOrMobile } = MediaQuery();
 
   const { mutate: deletePlace } = api.venue.deleteById.useMutation({
     onSuccess: () => {
@@ -98,6 +100,42 @@ const PlaceTable = (props: PlaceTableProp) => {
     []
   );
 
+  const colsForMobileAndTablet = useMemo<ColumnDef<Place>[]>(
+    () => [
+      {
+        header: "Name",
+        cell: (row) => row.renderValue(),
+        accessorKey: "name",
+      },
+      {
+        header: "",
+        cell: (row) => (
+          <ActionButton
+            row={row.row}
+            id={row.column.id}
+            path="places"
+            type="edit"
+          />
+        ),
+        accessorKey: "id",
+      },
+      {
+        header: "",
+        cell: (row) => (
+          <ActionButton
+            row={row.row}
+            id={row.column.id}
+            type="delete"
+            onDelete={deleteHandler}
+          />
+        ),
+        accessorKey: "id",
+      },
+    ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  );
+
   const tableData = () => {
     const items = [];
     for (let i = 0; i < places.length; i++) {
@@ -114,7 +152,10 @@ const PlaceTable = (props: PlaceTableProp) => {
 
   return (
     <>
-      <Table data={tableData()} columns={cols} />
+      <Table
+        data={tableData()}
+        columns={isTabletOrMobile ? colsForMobileAndTablet : cols}
+      />
     </>
   );
 };

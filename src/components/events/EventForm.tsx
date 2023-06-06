@@ -218,7 +218,7 @@ const EventForm = () => {
             Event Venue (Optional)
           </h1>
           <select
-            className="col-start-1 col-end-2 p-3"
+            className="col-start-1 col-end-3 p-3 laptop:col-end-2"
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
               venueOnChange(e)
             }
@@ -286,7 +286,7 @@ const EventForm = () => {
             Event Planner (Optional)
           </h1>
           <select
-            className="col-start-1 col-end-2 p-3"
+            className="col-start-1 col-end-3 p-3 laptop:col-end-2"
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
               plannerOnChange(e)
             }

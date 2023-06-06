@@ -81,10 +81,10 @@ const GuestChart = () => {
   }, [forthcomingEvent]);
 
   return (
-    <div className="flex items-center justify-center gap-6">
+    <div className="flex flex-col items-center justify-center gap-6 tablet:flex-row">
       {chartData && chartData.length > 0 ? (
         <>
-          <div>
+          <div className="w-2/3 tablet:w-1/3 laptop:w-1/2">
             <PieChart
               data={chartData}
               label={() => `${respondedPercentage}%`}
@@ -101,8 +101,8 @@ const GuestChart = () => {
           </div>
           <div>
             <div className="mb-6">
-              <h3 className="text-lg font-semibold">Attendance</h3>
-              <h4 className="text-md">
+              <h3 className="text-lg font-semibold">Response %</h3>
+              <h4 className="text-sm">
                 {forthcomingEvent?.data.name ?? "Forthcoming Event"}
               </h4>
               <h5 className="text-sm">

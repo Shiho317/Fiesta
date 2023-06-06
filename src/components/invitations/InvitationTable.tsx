@@ -3,6 +3,7 @@ import moment from "moment";
 import React, { useMemo } from "react";
 
 import Table from "../common/base/Table";
+import MediaQuery from "../common/base/MediaQuery";
 
 type Invitation = {
   id: string;
@@ -24,6 +25,7 @@ type InvitationTableProp = {
 
 const InvitationTable = (props: InvitationTableProp) => {
   const { invitations } = props;
+  const { isTabletOrMobile } = MediaQuery();
 
   const cols = useMemo<ColumnDef<Invitation>[]>(
     () => [
@@ -36,6 +38,27 @@ const InvitationTable = (props: InvitationTableProp) => {
         header: "Email",
         cell: (row) => row.renderValue(),
         accessorKey: "email",
+      },
+      {
+        header: "Status",
+        cell: (row) => row.renderValue(),
+        accessorKey: "status",
+      },
+      {
+        header: "Response Date",
+        cell: (row) => row.renderValue(),
+        accessorKey: "responseDate",
+      },
+    ],
+    []
+  );
+
+  const colsForMobileAndTablet = useMemo<ColumnDef<Invitation>[]>(
+    () => [
+      {
+        header: "Name",
+        cell: (row) => row.renderValue(),
+        accessorKey: "name",
       },
       {
         header: "Status",
@@ -78,7 +101,10 @@ const InvitationTable = (props: InvitationTableProp) => {
 
   return (
     <>
-      <Table data={tableData()} columns={cols} />
+      <Table
+        data={tableData()}
+        columns={isTabletOrMobile ? colsForMobileAndTablet : cols}
+      />
     </>
   );
 };

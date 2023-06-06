@@ -1,6 +1,7 @@
 import { SessionProvider } from "next-auth/react";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
+import Head from "next/head";
 
 import { api } from "~/utils/api";
 import "~/styles/globals.css";
@@ -22,6 +23,9 @@ const MyApp = ({
 
   return (
     <>
+      <Head>
+        <link rel="icon" href="/fiesta-icon.png" />
+      </Head>
       <SessionProvider session={pageProps.session}>
         {getLayout(<Component {...pageProps} />)}
       </SessionProvider>

@@ -71,10 +71,10 @@ const EventChart = () => {
   }, [canceledDataLength, completedDataLength, planningDataLength]);
 
   return (
-    <div className="flex items-center justify-center gap-6">
+    <div className="flex flex-col items-center justify-center gap-6 tablet:flex-row">
       {chartData && chartData.length > 0 ? (
         <>
-          <div>
+          <div className="w-2/3 tablet:w-1/3 laptop:w-1/2">
             <PieChart
               data={chartData}
               label={({ dataEntry }) => `${Math.round(dataEntry.percentage)}%`}
@@ -88,10 +88,11 @@ const EventChart = () => {
             />
           </div>
           <div>
-            <div className="mb-12">
+            <div className="mb-6">
               <h3 className="text-lg font-semibold">Events Status</h3>
+              <h4 className="text-sm">Updated:</h4>
               <h5 className="text-sm">
-                Updated: {moment(new Date()).format("MMM Do YYYY")}
+                {moment(new Date()).format("MMM Do YYYY")}
               </h5>
             </div>
             <div className="flex items-center gap-2">

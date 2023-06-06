@@ -41,9 +41,9 @@ const Login: NextPageWithLayout = () => {
   };
 
   return (
-    <Main className="flex items-center justify-center">
+    <Main className="flex min-h-screen items-center justify-center">
       <Header />
-      <div className="z-10 flex h-1/2 w-1/3 flex-col items-center justify-center rounded-lg border border-gray-200 bg-gray-200/50 p-4 shadow-md shadow-gray-300/30 backdrop-blur-md backdrop-filter">
+      <div className="z-10 flex h-1/2 w-4/5 flex-col items-center justify-center rounded-lg border border-gray-200 bg-gray-200/50 p-4 shadow-md shadow-gray-300/30 backdrop-blur-md backdrop-filter tablet:w-2/3 laptop:w-1/3">
         <form
           className="grid w-2/3 grid-rows-3 gap-8"
           onSubmit={handleSubmit(onSubmit)}

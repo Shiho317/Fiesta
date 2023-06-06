@@ -59,7 +59,7 @@ const UserProfilePicture = (props: UserProfilePicProp) => {
   };
 
   return (
-    <div className="relative z-10 col-span-2 mt-4 flex items-center rounded-lg border border-gray-200 bg-fiesta-100/30 p-4 shadow-md shadow-gray-300/30 backdrop-blur-md backdrop-filter">
+    <div className="relative z-10 col-span-5 mt-4 flex items-center rounded-lg border border-gray-200 bg-fiesta-100/30 p-4 shadow-md shadow-gray-300/30 backdrop-blur-md backdrop-filter tablet:col-span-2">
       <div className="m-auto flex flex-col items-center gap-2">
         <div
           className="flex h-40 w-40 cursor-pointer items-center justify-center overflow-hidden rounded-full bg-gray-300 hover:border-2 hover:border-fiesta-300"

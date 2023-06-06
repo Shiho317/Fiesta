@@ -96,7 +96,7 @@ const InvitationForm = () => {
 
   return (
     <LoadingQuery isLoading={isLoading} label="Sending invitation...">
-      <div className="relative z-10 mt-4 flex gap-8 rounded-lg border border-gray-200 bg-fiesta-100/30 p-4 shadow-md shadow-gray-300/30 backdrop-blur-md backdrop-filter">
+      <div className="relative z-10 mt-4 flex flex-col-reverse gap-8 rounded-lg border border-gray-200 bg-fiesta-100/30 p-4 shadow-md shadow-gray-300/30 backdrop-blur-md backdrop-filter laptop:flex-row">
         <form
           className="grid flex-1 gap-2"
           onSubmit={handleSubmit(submitHandler)}
