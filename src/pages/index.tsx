@@ -23,7 +23,6 @@ const Home: NextPageWithLayout = () => {
         <div>
           <div className="absolute left-1/2 top-1/2 z-10 flex h-1/2 w-3/4 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-lg border border-gray-200 bg-gray-100/25 shadow-md shadow-gray-300/30 backdrop-blur-md backdrop-filter tablet:w-2/3 laptop:left-1/4 laptop:w-1/3">
             <div className="w-full p-8">
-              {/* TODO:  maybe different font for sub title? */}
               <h1 className="text-4xl font-semibold">BE SPECIAL</h1>
               <p className="mt-6 text-base text-gray-500">
                 We help you to organize any kind of party from planning to
