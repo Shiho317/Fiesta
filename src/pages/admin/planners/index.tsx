@@ -33,25 +33,24 @@ const FriendsPage: NextPageWithLayout = () => {
   return (
     <LoadingQuery isLoading={isLoading}>
       <Main className="h-screen p-8">
-        <div>
-          <h1 className="text-3xl font-semibold text-gray-300">Planners</h1>
-          {plannerData && plannerData.length > 0 ? (
-            <>
-              <PlannerTable planners={plannerData} />
-              <div className="mt-4">
-                <PaginationButton
-                  start={skipNum + 1}
-                  end={skipNum + takeNum}
-                  take={takeNum}
-                  total={totalLength as number}
-                  skip={setSkipNum}
-                />
-              </div>
-            </>
-          ) : (
-            <Empty content="No Planners Exist." />
-          )}
-        </div>
+        <h1 className="text-3xl font-semibold text-gray-300">Planners</h1>
+        {plannerData && plannerData.length > 0 ? (
+          <>
+            <PlannerTable planners={plannerData} />
+            <div className="mt-4">
+              <PaginationButton
+                start={skipNum + 1}
+                end={skipNum + takeNum}
+                take={takeNum}
+                total={totalLength as number}
+                skip={setSkipNum}
+              />
+            </div>
+          </>
+        ) : (
+          <Empty content="No Planners Exist." />
+        )}
+
         <Link
           href={"/admin/planners/new"}
           className="absolute bottom-20 right-5 bg-transparent text-fiesta-300 drop-shadow-lg hover:text-gray-300 laptop:bottom-10 laptop:right-10"

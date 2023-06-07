@@ -32,25 +32,24 @@ const PlacesPage: NextPageWithLayout = () => {
   return (
     <LoadingQuery isLoading={isLoading}>
       <Main className="h-screen p-8">
-        <div>
-          <h1 className="text-3xl font-semibold text-gray-300">Places</h1>
-          {placeData && placeData.length > 0 ? (
-            <>
-              <PlaceTable places={placeData} />
-              <div className="mt-4">
-                <PaginationButton
-                  start={skipNum + 1}
-                  end={skipNum + takeNum}
-                  take={takeNum}
-                  total={totalLength as number}
-                  skip={setSkipNum}
-                />
-              </div>
-            </>
-          ) : (
-            <Empty content="No Places Exist." />
-          )}
-        </div>
+        <h1 className="text-3xl font-semibold text-gray-300">Places</h1>
+        {placeData && placeData.length > 0 ? (
+          <>
+            <PlaceTable places={placeData} />
+            <div className="mt-4">
+              <PaginationButton
+                start={skipNum + 1}
+                end={skipNum + takeNum}
+                take={takeNum}
+                total={totalLength as number}
+                skip={setSkipNum}
+              />
+            </div>
+          </>
+        ) : (
+          <Empty content="No Places Exist." />
+        )}
+
         <Link
           href={"/admin/places/new"}
           className="absolute bottom-20 right-5 bg-transparent text-fiesta-300 drop-shadow-lg hover:text-gray-300 laptop:bottom-10 laptop:right-10"
