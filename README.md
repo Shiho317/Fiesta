@@ -1,28 +1,34 @@
-# Create T3 App
+# Fiesta
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+Full-stack web application which is for managing user’s hosting events.
 
-## What's next? How do I make an app with this?
+:white_check_mark: Used T3 stack to create a scalable cloud application with typescript.
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+:white_check_mark: Created an email service with AWS to send invitations to event guests with template designed by the user .
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+`Next.js`, `Typescript`, `Node.js`, `PostgreSQL`, `tRPC`, `Prisma`, `Tailwind CSS`, `AWS Lambda`,
+`AWS-SQS`, `AWS-StepFunctions`, `Next-Auth`
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+## Overview :eyes:
 
-## Learn More
+![login-email-page](https://github.com/Shiho317/Fiesta/assets/88401910/9766c2e5-21ed-454f-8a48-f09481ae9c0d)
+You can login with magic links sent to registered email by Next-Auth.
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+![admin-page](https://github.com/Shiho317/Fiesta/assets/88401910/e8d50c6b-dd63-4ac5-8e6c-93f6e82be079)
+After logged in, you can see your events status in account page.
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+![event-page](https://github.com/Shiho317/Fiesta/assets/88401910/109a9238-2b7b-46ad-836d-4a5f033e1382)
+You can create, edit and delete event. Even if you already sent invitation email to your friends for events that you want to edit or cancel, email service will send email about changes to invited friends automatically.
+All events will be split by date to make clear the event date is past or future.
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
+![planner-page](https://github.com/Shiho317/Fiesta/assets/88401910/8d533182-5fbb-47c4-b755-806c6884ea7b)
+You can register your planner to make easier to contact planner and organize event with same planner in the future.
 
-## How do I deploy this?
+![loggedout-page](https://github.com/Shiho317/Fiesta/assets/88401910/b15d186c-eb30-48ba-a931-9569d7f29971)
+Once you logged out successfully. You will see this page. If you don't logout, you don't need to login. Page will move forward to your account page automatically within 1 month.
 
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+## Try to use
+
+- [Fiesta](https://fiesta-ebon.vercel.app/)
+
+\*\* Due to Railway free plan has been removed, application does not work correctly. I am planning to change infrastructure platform soon.
