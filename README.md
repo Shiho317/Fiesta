@@ -30,5 +30,3 @@ Once you logged out successfully. You will see this page. If you don't logout, y
 ## Try to use
 
 - [Fiesta](https://fiesta-ebon.vercel.app/)
-
-\*\* Due to Railway free plan has been removed, application does not work correctly. I am planning to change infrastructure platform soon.
